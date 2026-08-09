@@ -17,7 +17,6 @@ Replace these placeholders before sending:
 - `[TEAM NAME]`
 - `[TEAM MEMBER NAMES AND ROLES]`
 - `[CONTACT EMAIL]`
-- `[FINAL GITHUB URL]` if the repository is renamed
 
 Do not upload or display real patient information. The supplied KithRelay screenshots use synthetic Mdm Tan data.
 
@@ -33,7 +32,7 @@ Team: [TEAM NAME]
 Team members and roles: [TEAM MEMBER NAMES AND ROLES]
 Contact: [CONTACT EMAIL]
 Live product: https://kithrelay.vercel.app/
-GitHub: https://github.com/MuhammadHasifF/TencentCloud2026_
+GitHub: https://github.com/MuhammadHasifF/KithRelay_TencentCloud2026
 Track: AI Agent/Skills
 Core Tencent product: Tencent WorkBuddy
 

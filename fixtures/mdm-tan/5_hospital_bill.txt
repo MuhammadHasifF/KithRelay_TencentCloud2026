@@ -1,0 +1,15 @@
+Singapore General Hospital - Payment Advice
+
+Patient Name: TAN GEOK HUAY
+Visit Date: 20 July 2026
+Department: SOC Cardiology
+
+Consultation Fee: SGD 75.00
+Subsidy Applied (CHAS Blue): -SGD 45.00
+Amount Payable: SGD 30.00
+Payment Due: 19 August 2026
+
+Next follow-up recommended: 6-8 weeks from this visit.
+
+SYNTHETIC HACKATHON DATA — NOT A REAL BILL.
+

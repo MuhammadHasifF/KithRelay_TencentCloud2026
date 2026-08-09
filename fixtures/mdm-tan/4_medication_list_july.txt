@@ -1,0 +1,16 @@
+SINGHEALTH - Patient Medication List
+
+List Date: 20 July 2026
+Patient Name: TAN GEOK HUAY
+Conditions: Hypertension, Type 2 Diabetes
+Allergies: Penicillin
+
+Medicine Name + Strength | Dose/Instructions | Indication | Regular/PRN | Prescriber/Clinic | Start Date
+Amlodipine 10mg | 1 tablet once daily, morning | Hypertension | Regular | SGH Cardiology | 20 Jul 2026 (dose increased from 5mg)
+Metformin 500mg | 1 tablet twice daily, with meals | Diabetes | Regular | Polyclinic | 3 Mar 2024
+Vitamin D3 1000IU | 1 tablet daily | Supplement | Regular | Polyclinic | 20 Jul 2026
+
+Notes: Amlodipine increased due to persistent morning dizziness and elevated home BP readings. Panadol discontinued, no longer needed.
+
+SYNTHETIC HACKATHON DATA — NOT A REAL MEDICATION RECORD.
+

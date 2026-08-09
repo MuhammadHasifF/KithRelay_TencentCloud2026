@@ -1,0 +1,18 @@
+SINGHEALTH POLYCLINICS
+Appointment Rescheduling Notice
+
+Patient Name: TAN GEOK HUAY
+Patient Identifier: DEMO-234A
+
+Your appointment reference CAR-2026-08152034 (Cardiology, Dr. Lim Wei Ming) has been RESCHEDULED.
+
+Original Date: 15 August 2026, 10:30 AM
+New Date: 22 August 2026, 9:00 AM
+Institution: Singapore General Hospital
+Clinic: Specialist Outpatient Clinic (SOC) - Cardiology
+Location: Block 1, Level 3, SOC Cardiology
+
+Please disregard the original appointment letter. All other details remain unchanged.
+
+SYNTHETIC HACKATHON DATA — NOT A REAL APPOINTMENT.
+

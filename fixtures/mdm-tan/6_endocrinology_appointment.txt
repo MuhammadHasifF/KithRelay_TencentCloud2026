@@ -1,0 +1,17 @@
+SINGHEALTH POLYCLINICS
+Public Healthcare Appointment Notice
+
+Patient Name: TAN GEOK HUAY
+Patient Identifier: DEMO-234A
+
+Appointment Date: 6 September 2026
+Appointment Time: 2:15 PM
+Institution: Singapore General Hospital
+Clinic: Specialist Outpatient Clinic (SOC) - Endocrinology
+Doctor/Team: Dr. Sarah Koh, Endocrinology Team A
+Location: Block 2, Level 4, SOC Endocrinology
+Appointment Reference: END-2026-09062215
+Reason for Referral: Annual diabetes review and HbA1c follow-up
+
+SYNTHETIC HACKATHON DATA — NOT A REAL APPOINTMENT.
+

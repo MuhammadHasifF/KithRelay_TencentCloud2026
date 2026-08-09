@@ -1,0 +1,19 @@
+SINGHEALTH POLYCLINICS
+Public Healthcare Appointment Notice
+
+Patient Name: TAN GEOK HUAY
+Patient Identifier: DEMO-234A
+
+Appointment Date: 15 August 2026
+Appointment Time: 10:30 AM
+Institution: Singapore General Hospital
+Clinic: Specialist Outpatient Clinic (SOC) - Cardiology
+Doctor/Team: Dr. Lim Wei Ming, Cardiology Team B
+Location: Block 1, Level 3, SOC Cardiology
+Appointment Reference: CAR-2026-08152034
+Reason for Referral: Follow-up review, hypertension and irregular heartbeat monitoring
+
+Please register 15 minutes before the appointment.
+
+SYNTHETIC HACKATHON DATA — NOT A REAL APPOINTMENT.
+

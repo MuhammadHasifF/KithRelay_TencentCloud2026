@@ -6,7 +6,7 @@ Upload these files to ChatGPT together with this prompt:
 
 1. `assets/01-login.png`
 2. `assets/02-overview.png`
-3. `assets/03-workbuddy-sync.png`
+3. `assets/03-workbuddy-sync.png` — refresh this after deployment so the remembered-folder and auto-sync states are visible
 4. `assets/04-review-findings.png`
 5. `assets/05-mobile-overview.png`
 6. One real screenshot of the KithRelay skill enabled in WorkBuddy Desktop
@@ -49,14 +49,14 @@ SOURCE-OF-TRUTH PRODUCT FACTS
 - KithRelay helps a family caregiver reconcile one ageing relative’s fragmented appointment letters, dated medication lists, profile notes, and payment notices.
 - The WorkBuddy skill inventories every authorized file, checks that the folder concerns one senior, classifies readable files, extracts source-linked facts, reconciles repeated/rescheduled appointments, compares medication lists chronologically, extracts payment deadlines, runs a final evidence check, and writes exactly two review drafts: care_calendar.md and briefing.md.
 - The skill does not diagnose, prescribe, recommend treatment, silently resolve uncertainty, contact third parties, or change calendars without explicit approval.
-- The browser application provides account access, synthetic demo data, document review, deterministic reconciliation, evidence drawers, a human-review lock, exports, and WorkBuddy result syncing.
-- WorkBuddy and the website connect through one caregiver-authorized shared folder. There is no claim that WorkBuddy is embedded in the browser.
+- The browser application provides account access, synthetic demo data, document review, deterministic reconciliation, evidence drawers, a human-review lock, exports, remembered-folder permission, and automatic WorkBuddy result detection while the page is open.
+- WorkBuddy and the website connect through one caregiver-authorized shared folder. The website requests read-only access, stores the folder handle in browser IndexedDB where supported, rechecks permission after reload, and checks for new results every five seconds in a visible tab. There is no claim that WorkBuddy is embedded in the browser.
 - WorkBuddy performs the agentic folder task. The web application is the reliable review and explanation layer.
 - Prototype website accounts are browser-local, not production cloud authentication.
 - Selected website files are processed in browser memory. WorkBuddy has separate cloud-processing terms.
 - The public demo uses seven synthetic Mdm Tan source documents. Never imply that real patient records were used.
 - The tested scenario produces one active Cardiology appointment on 22 Aug 2026, superseding 15 Aug 2026; identifies Amlodipine changing from 5 mg to 10 mg; identifies Vitamin D3 1000 IU as newly listed; records Panadol as explicitly discontinued; finds an SGD 30.00 payment due on 19 Aug 2026; and keeps every finding linked to its source filename.
-- The repository currently has 11 passing automated tests covering account gating, appointment merging, medication changes, uncertainty, mixed-patient detection, payment extraction, evidence links, briefing generation, and human-review controls.
+- The repository currently has 15 passing automated tests covering account gating, appointment merging, medication changes, uncertainty, mixed-patient detection, payment extraction, evidence links, briefing generation, human-review controls, workspace output filtering, timestamped-draft selection, and folder permission recovery.
 
 VERIFIED EXTERNAL EVIDENCE
 Use only these supplied facts, with a small source footnote on the relevant slide:
@@ -77,6 +77,7 @@ DO NOT INVENT OR CLAIM
 - Do not claim fully local or on-device WorkBuddy processing.
 - Do not claim cloud-synced user accounts.
 - Do not claim a direct WorkBuddy browser API.
+- Do not claim event-driven filesystem watching, unattended background operation, a custom button inside WorkBuddy, or automatic task initiation. KithRelay polls only while the page is open, and the caregiver still starts the WorkBuddy task.
 - Do not claim “four parallel agents,” multi-agent execution, OCR of every image, Telegram automation, subsidy matching, family-message sending, or automatic calendar changes. Those ideas appeared in early planning but are not proven by the current build.
 - Do not fabricate testimonials, quotations, awards, screenshots, interface states, citations, logos, or metrics.
 - Do not display real NRICs, phone numbers, addresses, medical record numbers, or patient data.
@@ -165,7 +166,7 @@ Draw an accurate three-layer architecture:
 Layer 1 — Caregiver-authorized folder: synthetic appointment, medication, profile, and bill documents.
 Layer 2A — Tencent WorkBuddy + KithRelay skill: autonomous folder processing and two Markdown outputs.
 Layer 2B — Deterministic browser engine: immediate reconciliation and regression-tested fallback/review layer.
-Layer 3 — KithRelay web application: evidence display, WorkBuddy result sync, human review, and export.
+Layer 3 — KithRelay web application: remembered read-only folder permission, five-second latest-draft checks while open, evidence display, human review, and export.
 Show the shared folder as the bridge; do not draw a nonexistent direct API.
 Use `03-workbuddy-sync.png` as a supporting visual.
 Add a small tools strip: Tencent WorkBuddy (core agent), React + TypeScript, Vite, Vercel, automated tests.
@@ -181,7 +182,7 @@ Build a concise evidence table with five rows:
 - New listing: Vitamin D3 1000 IU appears in July.
 - Explicit stop: Panadol marked discontinued; not inferred from absence.
 - Payment: SGD 30.00 due 19 Aug 2026; bill cited.
-Add a proof badge: “11 automated tests passing.”
+Add a proof badge: “15 automated tests passing.”
 Do not add accuracy percentages.
 Speaker note objective: Show cross-document reasoning, source traceability, and repeatable technical validation.
 Rubric role: Project Quality + Use of AI Tools.
@@ -218,13 +219,13 @@ Headline: Every care detail, carried forward—with its source.
 Use a simple 40 / 30 / 30 recap:
 - 40 AI tools: WorkBuddy autonomously processes an authorized folder and writes traceable artifacts.
 - 30 impact: reduces invisible administrative load around ageing and family care.
-- 30 quality: deployed responsive product, installable skill, shared-folder sync, human review, exports, and 11 passing tests.
+- 30 quality: deployed responsive product, installable skill, remembered shared-folder connection, automatic result detection, human review, exports, and 15 passing tests.
 Place a QR code and readable URL for https://kithrelay.vercel.app/ plus the GitHub link and Skill ZIP availability.
 End with: “KithRelay supports the caregiver. The caregiver stays in control.”
 Speaker note objective: Give judges one memorable sentence and direct them to the working product.
 
 APPENDIX SLIDES
-A. Technical validation: list the 11 test behaviors, supported browser file types, and known limitations.
+A. Technical validation: summarize the 15 passing tests, supported browser file types, Chrome/Edge folder-handle support, five-second visible-tab polling, permission-reconnect behavior, and the manual WorkBuddy task-start limitation.
 B. Sources and disclosures: full URLs for Duke-NUS and WorkBuddy documentation; synthetic-data disclosure; administrative-only statement.
 
 SPEAKER NOTES

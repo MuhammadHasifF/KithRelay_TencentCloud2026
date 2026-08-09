@@ -26,9 +26,9 @@ Record manually:
 2. Choosing **Explore the demo instantly**.
 3. Navigating Overview → Documents → Review findings → WorkBuddy sync.
 4. Selecting a clean copy of the synthetic `fixtures/mdm-tan` folder.
-5. Opening WorkBuddy Desktop, selecting the same folder, enabling KithRelay, and starting the prepared task.
+5. Clicking **Copy task & open WorkBuddy**, selecting the same folder in WorkBuddy Desktop, pasting the copied short task, and starting the installed KithRelay skill.
 6. WorkBuddy visibly reading files, showing execution progress, and creating `care_calendar.md` plus `briefing.md`.
-7. Returning to KithRelay and choosing **Sync results**.
+7. Returning to KithRelay and recording the two drafts appearing automatically within the five-second check window. Keep a separate take of **Check now** only as a fallback.
 8. Reviewing source-linked findings and exporting a care calendar or briefing.
 
 ## Recording safety checklist
@@ -43,6 +43,8 @@ Record manually:
 - Let WorkBuddy complete a real run before editing. Do not fake execution progress.
 - If a live step is slow, use a labelled time compression such as **“Processing condensed for time”** rather than pretending it was instantaneous.
 - Verify the generated facts before recording the final result.
+- Keep KithRelay open during the WorkBuddy run because automatic folder checks occur only in a visible page.
+- If browser permission has expired, record the real **Reconnect folder** step rather than implying unattended access.
 
 ## Master visual prompt for Gemini-generated clips
 
@@ -178,14 +180,15 @@ Use the uploaded screenshot as an exact immutable pixel reference. Do not redraw
 **Capture:**
 
 1. Open **WorkBuddy sync**.
-2. Click **Connect folder**.
-3. Select the synthetic `KithRelay-Demo` folder.
-4. Show the connected state.
-5. Copy the prepared WorkBuddy task.
-6. Click **Open WorkBuddy** if the desktop protocol opens cleanly; otherwise cut manually to WorkBuddy.
+2. For the first-use take, click **Connect folder** and select the synthetic `KithRelay-Demo` folder. For a second take after refresh, show the truthful remembered or reconnect-permission state.
+3. Pause on **Auto-sync active** and the message that KithRelay checks every five seconds while the page is open.
+4. Click **Copy task & open WorkBuddy**. The button copies the concise task and launches the registered desktop protocol in one user action.
+5. If the desktop protocol confirmation appears, accept it on camera or cut cleanly to the already-open WorkBuddy window.
 
-**Editor-added diagram:** `Website ↔ authorized folder ↔ WorkBuddy`  
-**Voiceover:** “The browser and desktop agent connect through one caregiver-authorized folder. The website reviews it; WorkBuddy processes that same workspace.”
+**Editor-added diagram:** `Website review ↔ read-only authorized folder ↔ WorkBuddy task`
+
+**Editor-added micro-label:** `Remembered where supported · Permission remains user-controlled`
+**Voiceover:** “The browser and desktop agent share one caregiver-authorized folder. KithRelay remembers the connection where supported, copies the short task, and opens WorkBuddy without claiming a hidden API.”
 
 ### Clip 7 — WorkBuddy autonomous execution
 
@@ -226,11 +229,11 @@ Use the uploaded screenshot as an exact immutable pixel reference. Do not redraw
 1. In WorkBuddy or the folder, show `care_calendar.md` and `briefing.md` exist.
 2. Open one briefly and show the verification notice.
 3. Return to KithRelay.
-4. Click **Sync results**.
-5. Expand one result preview in the website.
+4. Keep the cursor still and record the status changing from **Waiting for files** to **2 of 2 ready** within the real five-second check window.
+5. Expand one result preview in the website and show the detected filename. If automatic detection does not occur during the take, use **Check now** and label it `Manual fallback`.
 
 **Editor-added text:** `care_calendar.md + briefing.md`  
-**Voiceover:** “The agent writes a care calendar and next-visit briefing into the same folder. One click syncs both results back into KithRelay for review.”
+**Voiceover:** “The agent writes a care calendar and next-visit briefing into the same folder. While the page is open, KithRelay detects the newest drafts automatically and brings them back for review.”
 
 ### Clip 9 — Caregiver stays in control
 
@@ -299,11 +302,11 @@ Seven synthetic documents become one current timeline. KithRelay keeps the new a
 
 This is not a black-box summary. Every important change links back to the exact source files, and approval stays locked until a caregiver reviews the evidence.
 
-The browser and desktop agent connect through one caregiver-authorized folder. The website reviews it; WorkBuddy processes that same workspace.
+The browser and desktop agent share one caregiver-authorized folder. KithRelay remembers the connection where supported, copies the short task, and opens WorkBuddy without claiming a hidden API.
 
 Inside WorkBuddy, the KithRelay skill defines the goal and safety boundaries. WorkBuddy plans the folder task, invokes file operations, reconciles evidence across documents, checks traceability, and writes two review drafts.
 
-The agent writes a care calendar and next-visit briefing into the same folder. One click syncs both results back into KithRelay for review.
+The agent writes a care calendar and next-visit briefing into the same folder. While the page is open, KithRelay detects the newest drafts automatically and brings them back for review.
 
 KithRelay never makes the care decision. The caregiver verifies important details first, then exports a plan that stays attached to its sources.
 
@@ -326,11 +329,13 @@ Assemble the supplied clips into a 16:9, 1920x1080, approximately 110-second doc
 - KithRelay spelling and URL are correct in every title and caption.
 - At least 60% of the runtime is real product or WorkBuddy footage.
 - The WorkBuddy task shown is a real completed run using the synthetic fixture folder.
+- The automatic result-detection shot is a real continuous capture, not an edited status change.
 - No unsupported feature or impact claim appears.
 - No generated clip contains legible fake paperwork or UI.
 - The 33-hour statistic is attributed to Duke-NUS, 2024.
 - “Synthetic demo data” is visible or stated.
 - Human review and the administrative-only boundary are visible.
+- The video never implies event-driven background watching, automatic WorkBuddy task initiation, or fully local AI processing.
 - The video is under 2 minutes.
 - Captions remain inside title-safe margins on both desktop and mobile playback.
 - Voiceover is understandable without music; captions make it understandable without sound.

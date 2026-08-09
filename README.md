@@ -61,6 +61,12 @@ This follows WorkBuddy's documented task model: choose a working directory, let 
 
 The importable skill is available in `workbuddy-skill/kithrelay` and from the website's **WorkBuddy sync** page.
 
+## Presentation and video kit
+
+- [ChatGPT presentation prompt](submission/PRESENTATION_PROMPT.md)
+- [Gemini clip-by-clip video prompts](submission/VIDEO_PROMPTS.md)
+- [Synthetic-data screenshots](submission/assets)
+
 ## Safety
 
 KithRelay is an administrative support prototype. Users must verify all outputs against the source documents and consult qualified professionals for medical decisions.

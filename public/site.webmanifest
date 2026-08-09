@@ -4,8 +4,8 @@
   "description": "Source-linked care coordination and document reconciliation for family caregivers.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0b171f",
-  "theme_color": "#0b171f",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "./favicon.svg",

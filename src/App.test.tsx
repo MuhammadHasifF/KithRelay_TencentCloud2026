@@ -1,8 +1,25 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App'
 
 describe('KithRelay application', () => {
+  beforeEach(() => {
+    sessionStorage.setItem('kithrelay.session.v1', JSON.stringify({
+      id: 'test-caregiver',
+      name: 'Test Caregiver',
+      email: 'test@example.com',
+      demo: true,
+    }))
+  })
+
+  it('requires account access before opening the care workspace', () => {
+    sessionStorage.clear()
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: 'Welcome back' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Explore the demo instantly' })).toBeInTheDocument()
+  })
+
   it('shows the reconciled demo story on first load', () => {
     render(<App />)
 

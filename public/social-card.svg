@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">KithRelay</title>
+  <desc id="description">Every care detail, carried forward.</desc>
+  <rect width="1200" height="630" fill="#0b171f"/>
+  <rect x="64" y="64" width="1072" height="502" rx="26" fill="#10242d" stroke="#2e4952" stroke-width="2"/>
+  <g transform="translate(112 112)" fill="none" stroke="#80d9c5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="38" cy="38" r="13" fill="#173a35"/>
+    <circle cx="114" cy="38" r="13" fill="#173a35"/>
+    <circle cx="76" cy="106" r="13" fill="#173a35"/>
+    <path d="M51 38h50M45 50l24 44M107 50 83 94"/>
+  </g>
+  <text x="112" y="315" fill="#f2f7f5" font-family="Inter, Arial, sans-serif" font-size="82" font-weight="750" letter-spacing="-4">KithRelay</text>
+  <text x="112" y="390" fill="#a9bdc0" font-family="Inter, Arial, sans-serif" font-size="34">Every care detail, carried forward.</text>
+  <line x1="112" y1="456" x2="1088" y2="456" stroke="#2e4952" stroke-width="2"/>
+  <text x="112" y="512" fill="#80d9c5" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="650">SOURCE-LINKED  ·  HUMAN-REVIEWED  ·  WORKBUDDY-CONNECTED</text>
+</svg>

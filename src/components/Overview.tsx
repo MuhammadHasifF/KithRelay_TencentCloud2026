@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   Clock3,
   FileCheck2,
+  FolderSync,
   HeartPulse,
   Pill,
   ShieldCheck,
@@ -19,7 +20,8 @@ type OverviewProps = {
   plan: CarePlan
   briefing: AppointmentBriefing
   reviewedCount: number
-  onNavigate: (view: 'calendar' | 'medications' | 'review' | 'documents') => void
+  workspaceName?: string
+  onNavigate: (view: 'calendar' | 'medications' | 'review' | 'documents' | 'workbuddy') => void
   onOpenSource: (documentId: string) => void
 }
 
@@ -27,6 +29,7 @@ export function Overview({
   plan,
   briefing,
   reviewedCount,
+  workspaceName,
   onNavigate,
   onOpenSource,
 }: OverviewProps) {
@@ -61,6 +64,12 @@ export function Overview({
           </div>
           <p><ShieldCheck size={16} /> Human review stays in control</p>
         </div>
+      </section>
+
+      <section className={`workspace-strip ${workspaceName ? 'connected' : ''}`}>
+        <span><FolderSync size={19} /></span>
+        <div><strong>{workspaceName ? `${workspaceName} is connected` : 'Connect the WorkBuddy workflow'}</strong><p>{workspaceName ? 'KithRelay is reading the same care folder used by the desktop agent.' : 'Choose one shared folder, run WorkBuddy, and sync its results back into this website.'}</p></div>
+        <button className="secondary-button" type="button" onClick={() => onNavigate('workbuddy')}>{workspaceName ? 'View sync' : 'Connect now'}<ArrowRight size={16} /></button>
       </section>
 
       <section className="metric-grid" aria-label="Care plan summary">

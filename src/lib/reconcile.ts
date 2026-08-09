@@ -280,14 +280,20 @@ function parseMedications(documents: SourceDocument[]) {
         .filter((item) => item.entry)
 
       const latestSnapshot = snapshots.at(-1)!
-      const latestHistory = history.at(-1)
-      const latestEntry = latestHistory?.entry
-      const previousEntry = history.at(-2)?.entry
+      const latestHistory = history.find(
+        ({ snapshot }) => snapshot.document.id === latestSnapshot.document.id,
+      )
+      const latestEntry = latestSnapshot.entries.find(
+        (candidate) => candidate.name.toLowerCase() === name.toLowerCase(),
+      )
+      const previousEntry = latestEntry
+        ? history.filter(({ snapshot }) => snapshot.document.id !== latestSnapshot.document.id).at(-1)?.entry
+        : history.at(-1)?.entry
       const wasDiscontinued = latestSnapshot.discontinuedNames.some(
         (candidate) => candidate.toLowerCase() === name.toLowerCase(),
       )
 
-      if (!latestEntry && !wasDiscontinued) return undefined
+      if (!latestEntry && !history.length) return undefined
 
       const strengthChange = compareStrength(previousEntry?.strength, latestEntry?.strength)
       const isNew = Boolean(latestEntry && !previousEntry && snapshots.length > 1)
@@ -317,8 +323,8 @@ function parseMedications(documents: SourceDocument[]) {
         strength: latestEntry?.strength ?? previousEntry?.strength,
         instructions: latestEntry?.instructions ?? previousEntry?.instructions,
         indication: latestEntry?.indication ?? previousEntry?.indication,
-        status: wasDiscontinued ? 'discontinued' : 'current',
-        effectiveDate: latestHistory?.snapshot.date ?? latestSnapshot.date,
+        status: wasDiscontinued ? 'discontinued' : latestEntry ? 'current' : 'uncertain',
+        effectiveDate: latestHistory?.snapshot.date ?? history.at(-1)?.snapshot.date,
         change,
         sources: [
           ...history.map(({ snapshot, entry }) =>
@@ -371,6 +377,40 @@ function buildFlags(
 ): ReviewFlag[] {
   const flags: ReviewFlag[] = []
 
+  const documentsByPatientName = documents
+    .map((document) => ({
+      document,
+      patientName: getField(document.content, fieldAliases.patientName),
+    }))
+    .filter((item): item is { document: SourceDocument; patientName: string } => Boolean(item.patientName))
+  const normalizedPatientNames = unique(
+    documentsByPatientName.map((item) => item.patientName.toUpperCase().replace(/[^A-Z0-9]/g, '')),
+  )
+
+  if (normalizedPatientNames.length > 1) {
+    flags.push({
+      id: 'flag-mixed-patient-folder',
+      severity: 'important',
+      category: 'data-quality',
+      title: 'Possible mixed-patient folder',
+      explanation: `The documents contain ${normalizedPatientNames.length} different patient names. Separate and verify the files before using this plan.`,
+      sourceIds: documentsByPatientName.map((item) => item.document.id),
+      reviewed: false,
+    })
+  }
+
+  if (documents.length > 0 && !documents.some((document) => document.kind === 'profile')) {
+    flags.push({
+      id: 'flag-profile-missing',
+      severity: 'attention',
+      category: 'data-quality',
+      title: 'Senior profile not provided',
+      explanation: 'Add a short profile with the senior’s preferred name, conditions, and allergies so the summary can be checked against the correct person.',
+      sourceIds: [],
+      reviewed: false,
+    })
+  }
+
   for (const appointment of appointments.filter((item) => item.status === 'rescheduled')) {
     flags.push({
       id: `flag-${appointment.id}-rescheduled`,
@@ -397,6 +437,18 @@ function buildFlags(
       category: 'medication',
       title: `${medication.name} ${change.type}`,
       explanation: summary,
+      sourceIds: medication.sources.map((source) => source.documentId),
+      reviewed: false,
+    })
+  }
+
+  for (const medication of medications.filter((item) => item.status === 'uncertain')) {
+    flags.push({
+      id: `flag-${medication.id}-uncertain`,
+      severity: 'important',
+      category: 'medication',
+      title: `${medication.name} status is uncertain`,
+      explanation: `${medication.name} appeared in an earlier list but is absent from the newest list without an explicit discontinuation statement. Do not assume it stopped; confirm against the source or with a qualified healthcare professional.`,
       sourceIds: medication.sources.map((source) => source.documentId),
       reviewed: false,
     })

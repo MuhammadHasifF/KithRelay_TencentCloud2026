@@ -10,6 +10,7 @@ type MedicationsViewProps = {
 export function MedicationsView({ plan, onOpenSource }: MedicationsViewProps) {
   const current = plan.medications.filter((medication) => medication.status === 'current')
   const discontinued = plan.medications.filter((medication) => medication.status === 'discontinued')
+  const uncertain = plan.medications.filter((medication) => medication.status === 'uncertain')
 
   return (
     <div className="view-stack">
@@ -44,8 +45,16 @@ export function MedicationsView({ plan, onOpenSource }: MedicationsViewProps) {
             <div className="source-row">{medication.sources.map((source) => <SourceBadge key={`${medication.id}-${source.documentId}`} source={source} onOpen={onOpenSource} />)}</div>
           </article>
         ))}
+        {uncertain.map((medication) => (
+          <article className="panel medication-card changed" key={medication.id}>
+            <div className="medication-topline"><span className="medication-symbol muted"><CircleSlash2 size={19} /></span><span className="status-chip rescheduled">Needs confirmation</span></div>
+            <h3>{medication.name}</h3>
+            <strong className="dose">{medication.strength}</strong>
+            <p>Missing from the newest list without an explicit discontinuation statement.</p>
+            <div className="source-row">{medication.sources.map((source) => <SourceBadge key={`${medication.id}-${source.documentId}`} source={source} onOpen={onOpenSource} />)}</div>
+          </article>
+        ))}
       </section>
     </div>
   )
 }
-

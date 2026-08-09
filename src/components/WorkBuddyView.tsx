@@ -5,15 +5,18 @@ import {
   Clipboard,
   Download,
   ExternalLink,
+  Eye,
   FolderCheck,
   FolderSync,
   Laptop,
   PackageCheck,
   RefreshCcw,
+  Save,
   Waypoints,
 } from 'lucide-react'
 import { useState } from 'react'
 import type { CarePlan } from '../types/care'
+import { buildWorkBuddyTask } from '../lib/workbuddy'
 
 export type WorkBuddyArtifacts = {
   calendar?: string
@@ -27,15 +30,28 @@ type WorkBuddyViewProps = {
   workspaceName?: string
   error: string
   isSyncing: boolean
+  watching?: boolean
+  needsPermission?: boolean
+  taskWritten?: boolean
+  watchStatus?: { checkedAt?: string; fileCount?: number; sawCalendar?: boolean; sawBriefing?: boolean; error?: string }
   onConnect: () => void
   onSync: () => void
+  onWriteTask?: () => void
 }
 
-export function WorkBuddyView({ plan, artifacts, workspaceName, error, isSyncing, onConnect, onSync }: WorkBuddyViewProps) {
+export function WorkBuddyView({ plan, artifacts, workspaceName, error, isSyncing, watching, needsPermission, taskWritten, watchStatus, onConnect, onSync, onWriteTask }: WorkBuddyViewProps) {
   const [copied, setCopied] = useState(false)
-  const prompt = `Use the kithrelay skill on this folder for ${plan.profile.preferredName}. Read every source document, reconcile repeated or rescheduled appointments, compare medication lists chronologically, identify payment deadlines, and write care_calendar.md plus briefing.md into this same folder. Preserve source filenames for every important item. Do not provide medical advice, do not guess when documents conflict, and require human review before anything is shared.`
-  const connected = Boolean(workspaceName)
+  const prompt = buildWorkBuddyTask(plan.profile.preferredName)
+  const connected = Boolean(workspaceName) && !needsPermission
   const outputsReady = Boolean(artifacts.calendar || artifacts.briefing)
+
+  const heroTitle = needsPermission ? `Reconnect ${workspaceName}` : connected ? workspaceName : 'Connect the care folder once'
+  const heroCopy = needsPermission
+    ? 'Your care folder is remembered. Grant access again to resume automatic syncing.'
+    : connected
+      ? `${plan.documents.length} source documents are available in this website. Run WorkBuddy on the same folder and the results sync back here on their own.`
+      : 'Choose the folder containing the care documents. KithRelay reads it in the browser, saves the task into it, and WorkBuddy can process that exact folder in the desktop app.'
+  const connectLabel = needsPermission ? 'Reconnect folder' : connected ? 'Change folder' : 'Connect folder'
 
   async function copyPrompt() {
     await navigator.clipboard.writeText(prompt)
@@ -54,24 +70,24 @@ export function WorkBuddyView({ plan, artifacts, workspaceName, error, isSyncing
         <div className="connection-hero-icon">{connected ? <FolderCheck size={29} /> : <FolderSync size={29} />}</div>
         <div className="connection-hero-copy">
           <p className="overline">Shared workspace</p>
-          <h3>{connected ? workspaceName : 'Connect the care folder once'}</h3>
-          <p>{connected ? `${plan.documents.length} source documents are available in this website. Run WorkBuddy on the same folder, then sync its two result files here.` : 'Choose the folder containing the care documents. KithRelay reads it in the browser; WorkBuddy can process that exact folder in the desktop app.'}</p>
+          <h3>{heroTitle}</h3>
+          <p>{heroCopy}</p>
           {artifacts.lastSynced && <small>Last checked {new Date(artifacts.lastSynced).toLocaleString()}</small>}
           {error && <p className="connection-error" role="alert">{error}</p>}
         </div>
         <div className="connection-actions">
-          <button className="primary-button" type="button" onClick={onConnect}><FolderSync size={17} />{connected ? 'Change folder' : 'Connect folder'}</button>
-          {connected && <button className="secondary-button" type="button" disabled={isSyncing} onClick={onSync}><RefreshCcw size={17} />{isSyncing ? 'Syncing…' : 'Sync results'}</button>}
+          <button className="primary-button" type="button" onClick={onConnect}><FolderSync size={17} />{connectLabel}</button>
+          {connected && <button className="secondary-button" type="button" disabled={isSyncing} onClick={onSync}><RefreshCcw size={17} />{isSyncing ? 'Syncing…' : 'Check now'}</button>}
           <a className="secondary-button" href="workbuddy-ai://"><Laptop size={17} /> Open WorkBuddy</a>
         </div>
       </section>
 
       <section className="relay-flow" aria-label="Connected workflow">
-        <div className={connected ? 'complete' : 'active'}><span>1</span><strong>Connect folder</strong><small>Grant browser read access</small></div>
+        <div className={connected ? 'complete' : 'active'}><span>1</span><strong>Connect once</strong><small>Folder + task saved for you</small></div>
         <i />
-        <div className={connected && !outputsReady ? 'active' : outputsReady ? 'complete' : ''}><span>2</span><strong>Run WorkBuddy</strong><small>Select the same folder</small></div>
+        <div className={connected && !outputsReady ? 'active' : outputsReady ? 'complete' : ''}><span>2</span><strong>Run WorkBuddy</strong><small>Open the same folder</small></div>
         <i />
-        <div className={outputsReady ? 'complete' : ''}><span>3</span><strong>Sync and review</strong><small>Results appear below</small></div>
+        <div className={outputsReady ? 'complete' : ''}><span>3</span><strong>Results sync automatically</strong><small>They appear below on their own</small></div>
       </section>
 
       <section className="workbuddy-grid">
@@ -80,28 +96,41 @@ export function WorkBuddyView({ plan, artifacts, workspaceName, error, isSyncing
           <ol className="compact-steps">
             <li><span>1</span><p><strong>Open WorkBuddy</strong>Select New Task and the connected folder.</p></li>
             <li><span>2</span><p><strong>Enable KithRelay</strong>Import the package first if the skill is not installed.</p></li>
-            <li><span>3</span><p><strong>Paste the task</strong>WorkBuddy writes both outputs to the folder.</p></li>
-            <li><span>4</span><p><strong>Return and sync</strong>KithRelay displays the latest results here.</p></li>
+            <li><span>3</span><p><strong>Run the saved task</strong>KithRelay already wrote it into the folder as TASK.md.</p></li>
+            <li><span>4</span><p><strong>Leave it running</strong>KithRelay imports both results here automatically.</p></li>
           </ol>
           <div className="setup-links"><a className="secondary-button full" href="./downloads/kithrelay-workbuddy.zip" download><Download size={17} /> Download skill again</a><a className="text-link" href="https://www.workbuddy.ai/docs/workbuddy/Create-Task" target="_blank" rel="noreferrer">Official task guide <ExternalLink size={14} /></a></div>
         </article>
 
         <article className="panel prompt-card">
-          <div className="panel-heading"><div><span className="panel-icon"><Clipboard size={18} /></span><div><p className="overline">Ready-made instruction</p><h3>Task for WorkBuddy</h3></div></div></div>
+          <div className="panel-heading"><div><span className="panel-icon"><Clipboard size={18} /></span><div><p className="overline">Ready-made instruction</p><h3>Task for WorkBuddy</h3></div></div>{taskWritten && <span className="status-chip current"><Check size={14} /> Saved as TASK.md</span>}</div>
           <pre>{prompt}</pre>
-          <button className="primary-button full" type="button" onClick={copyPrompt}>{copied ? <Check size={17} /> : <Clipboard size={17} />}{copied ? 'Copied to clipboard' : 'Copy WorkBuddy task'}</button>
+          <p className="prompt-hint">When a folder is connected, KithRelay saves this into it as TASK.md, so there is nothing to paste.</p>
+          <div className="prompt-actions">
+            <button className="primary-button full" type="button" onClick={copyPrompt}>{copied ? <Check size={17} /> : <Clipboard size={17} />}{copied ? 'Copied to clipboard' : 'Copy task'}</button>
+            {onWriteTask && <button className="secondary-button full" type="button" disabled={!connected} onClick={onWriteTask}>{taskWritten ? <Check size={17} /> : <Save size={17} />}{taskWritten ? 'Saved to folder' : 'Save task into folder'}</button>}
+          </div>
         </article>
       </section>
 
       <section className="agent-results">
-        <div className="panel-heading"><div><span className="panel-icon"><Waypoints size={18} /></span><div><p className="overline">Synced from the shared folder</p><h3>WorkBuddy results</h3></div></div><span className={`connection-badge ${outputsReady ? 'connected' : ''}`}>{outputsReady ? <CircleCheck size={15} /> : <RefreshCcw size={15} />}{outputsReady ? 'Results received' : 'Waiting for files'}</span></div>
+        <div className="panel-heading"><div><span className="panel-icon"><Waypoints size={18} /></span><div><p className="overline">Synced from the shared folder</p><h3>WorkBuddy results</h3></div></div><span className={`connection-badge ${outputsReady ? 'connected' : ''}`}>{outputsReady ? <><CircleCheck size={15} /> Results received</> : watching ? <><Eye size={15} /> Watching folder…</> : <><RefreshCcw size={15} /> Waiting for files</>}</span></div>
+        {watching && (
+          <p className={`watch-status ${watchStatus?.error ? 'error' : ''}`}>
+            {watchStatus?.error
+              ? `Watch error: ${watchStatus.error}`
+              : watchStatus?.checkedAt
+                ? `Watching · ${watchStatus.fileCount ?? 0} files in folder · care_calendar.md ${watchStatus.sawCalendar ? 'found ✓' : 'not found ✗'} · briefing.md ${watchStatus.sawBriefing ? 'found ✓' : 'not found ✗'} · last checked ${new Date(watchStatus.checkedAt).toLocaleTimeString()}`
+                : 'Starting folder watch…'}
+          </p>
+        )}
         <div className="artifact-grid">
           <article className={artifacts.calendar ? 'ready' : ''}><strong>care_calendar.md</strong><span>{artifacts.calendar ? 'Synced and ready to review' : 'WorkBuddy has not written this file yet'}</span>{artifacts.calendar && <details><summary>Preview result</summary><pre>{artifacts.calendar}</pre></details>}</article>
           <article className={artifacts.briefing ? 'ready' : ''}><strong>briefing.md</strong><span>{artifacts.briefing ? 'Synced and ready to review' : 'WorkBuddy has not written this file yet'}</span>{artifacts.briefing && <details><summary>Preview result</summary><pre>{artifacts.briefing}</pre></details>}</article>
         </div>
       </section>
 
-      <div className="agent-note"><Bot size={18} /><p><strong>How the connection works:</strong> browsers cannot silently control desktop applications. The authorized folder is the secure bridge: both KithRelay and WorkBuddy read the same sources, and KithRelay imports WorkBuddy&apos;s generated files when you select Sync results.</p></div>
+      <div className="agent-note"><Bot size={18} /><p><strong>How the connection works:</strong> browsers cannot silently control desktop applications, so the authorized folder is the secure bridge. KithRelay remembers it, writes the task into it as TASK.md, and imports WorkBuddy&apos;s results automatically. The documents never leave your computer.</p></div>
     </div>
   )
 }

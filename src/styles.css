@@ -1671,6 +1671,35 @@ button:disabled {
   white-space: pre-wrap;
 }
 
+.prompt-hint {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 0.66rem;
+  line-height: 1.5;
+}
+
+.prompt-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.watch-status {
+  margin: 0 0 14px;
+  padding: 8px 12px;
+  border: 1px solid #dce4de;
+  border-radius: 9px;
+  background: #f4f8f5;
+  color: var(--muted);
+  font-size: 0.64rem;
+  line-height: 1.5;
+}
+
+.watch-status.error {
+  border-color: #e6c9c2;
+  background: #fbf1ee;
+  color: #9a4b3b;
+}
+
 .text-link {
   margin-top: 14px;
   color: var(--green);

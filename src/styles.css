@@ -3633,6 +3633,88 @@ input:focus-visible {
   background: #ffffff;
 }
 
+.connection-badge.attention {
+  color: #8a5715;
+  border-color: #efd19f;
+  background: #fff6e7;
+}
+
+.connection-hero.permission-needed {
+  border-color: #efd19f;
+  background: #fffaf1;
+}
+
+.connection-hero.permission-needed .connection-hero-icon {
+  color: #a06418;
+  background: #fff0d5;
+}
+
+.connection-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 9px !important;
+  color: #47656d !important;
+  font-size: 0.65rem !important;
+}
+
+.connection-error {
+  color: #a73e39 !important;
+}
+
+.task-helper {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 0.69rem;
+  line-height: 1.55;
+}
+
+.prompt-card pre {
+  min-height: 154px;
+  margin-top: 13px;
+}
+
+.prompt-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
+  gap: 9px;
+}
+
+.agent-results.ready {
+  border-color: #abd2ce;
+  background: #f7fbfa;
+}
+
+.agent-results.partial {
+  border-color: #ecd2a9;
+  background: #fffcf6;
+}
+
+.spin {
+  animation: kithrelay-spin 0.85s linear infinite;
+}
+
+.soft-spin {
+  animation: kithrelay-spin 5s linear infinite;
+}
+
+@keyframes kithrelay-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin,
+  .soft-spin {
+    animation: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .prompt-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
 .auth-story {
   color: var(--ink);
   border-right-color: #d7e5e8;

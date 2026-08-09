@@ -69,7 +69,6 @@ The importable skill is available in `workbuddy-skill/kithrelay` and from the we
 
 - [ChatGPT presentation prompt](submission/PRESENTATION_PROMPT.md)
 - [Gemini clip-by-clip video prompts](submission/VIDEO_PROMPTS.md)
-- [Ready-to-import video captions](submission/KITHRELAY_CAPTIONS.srt)
 - [Synthetic-data screenshots](submission/assets)
 
 ## Safety

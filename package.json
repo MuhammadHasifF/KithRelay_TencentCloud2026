@@ -11,7 +11,7 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "package:skill": "node scripts/package-skill.mjs",
-    "check": "npm run lint && npm run test && npm run build"
+    "check": "npm run lint && npm run test && npm run build && npm run package:skill"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",

@@ -37,7 +37,14 @@ Record each WorkBuddy attempt in a simple table:
 
 | Run | Appointment merge | Medication diff | Source links | Safety notice | Notes |
 |---|---:|---:|---:|---:|---|
-| 1 | Pass/Fail | Pass/Fail | Pass/Fail | Pass/Fail | |
+| 1 | Pass | Pass | Pass | Pass | WorkBuddy Desktop run completed on 9 Aug 2026 using all seven synthetic Mdm Tan fixtures. Both expected Markdown files were generated. |
+
+### Run 1 observations
+
+- The active Cardiology appointment is 22 Aug 2026 and the 15 Aug date is marked superseded.
+- Amlodipine 5mg to 10mg, new Vitamin D3, and discontinued Panadol are reported with source filenames.
+- The SGD 30 payment deadline and 6 Sep Endocrinology appointment are present.
+- Both files include the required AI-assistance and professional-verification warning.
+- WorkBuddy generated `care_calendar.md` and `briefing.md` inside the selected fixture workspace as expected.
 
 Do not cherry-pick only a successful run for internal evaluation. If the same prompt is inconsistent, disclose that limitation and use the deterministic companion app as the reliable review layer.
-

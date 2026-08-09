@@ -9,3 +9,7 @@ coverage/
 .DS_Store
 Thumbs.db
 
+# WorkBuddy per-workspace state and generated demo outputs
+fixtures/mdm-tan/.workbuddy-ai/
+fixtures/mdm-tan/briefing.md
+fixtures/mdm-tan/care_calendar.md

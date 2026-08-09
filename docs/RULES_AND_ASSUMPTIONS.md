@@ -4,7 +4,7 @@ This file prevents AI-generated planning advice from being presented as an organ
 
 ## Supported by supplied materials
 
-- The selected concept is CareCircle Copilot in the AI Agent/Skills track.
+- The selected concept is KithRelay in the AI Agent/Skills track.
 - The supplied handbook summary says an AI Agent/Skills entry accepts a **web link or Skill ZIP**, plus a Project Introduction Deck.
 - WorkBuddy successfully imported the team’s earlier `SKILL.md` prototype according to the supplied chat record.
 - The judging summary emphasizes autonomous planning/tool use, impact/relevance, and project quality.
@@ -26,7 +26,7 @@ Official documentation: <https://www.workbuddy.ai/docs/workbuddy/>
 The repository is structured so the team can submit either route without rebuilding:
 
 - deployed companion web link, with GitHub as supporting evidence; or
-- `artifacts/carecircle-copilot-workbuddy.zip` as the Skill ZIP.
+- `artifacts/kithrelay-workbuddy.zip` as the Skill ZIP.
 
 Submit both links/artifacts if the form permits attachments and supporting URLs.
 
@@ -40,4 +40,3 @@ Submit both links/artifacts if the form permits attachments and supporting URLs.
 - Whether the organizer prefers the imported `SKILL.md` package or another exported WorkBuddy format.
 
 Direct organizer instructions override this file and all previous AI conversations.
-

@@ -5,13 +5,13 @@ import {
   ClipboardCheck,
   Download,
   FileText,
-  HeartHandshake,
   LayoutDashboard,
   Menu,
   Pill,
   RefreshCcw,
   ShieldCheck,
   Trash2,
+  Waypoints,
   X,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -124,7 +124,7 @@ function App() {
   return (
     <div className="app-frame">
       <aside className={`sidebar ${mobileMenuOpen ? 'open' : ''}`}>
-        <div className="sidebar-brand"><span><HeartHandshake size={23} /></span><div><strong>CareCircle</strong><small>Copilot</small></div><button className="mobile-close" type="button" onClick={() => setMobileMenuOpen(false)}><X size={20} /></button></div>
+        <div className="sidebar-brand"><span><Waypoints size={23} /></span><div><strong>KithRelay</strong><small>Care handoff</small></div><button className="mobile-close" type="button" onClick={() => setMobileMenuOpen(false)}><X size={20} /></button></div>
         <nav aria-label="Main navigation">
           <p className="nav-label">Workspace</p>
           {navigation.map((item) => {
@@ -163,4 +163,3 @@ function App() {
 }
 
 export default App
-

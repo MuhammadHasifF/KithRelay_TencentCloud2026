@@ -13,3 +13,4 @@ Thumbs.db
 fixtures/mdm-tan/.workbuddy-ai/
 fixtures/mdm-tan/briefing.md
 fixtures/mdm-tan/care_calendar.md
+artifacts/*.png

@@ -2,7 +2,7 @@
 
 ## Healthcare boundary
 
-CareCircle organizes documented information. It does not decide what care is appropriate. Medication differences are evidence for review, never instructions.
+KithRelay organizes documented information. It does not decide what care is appropriate. Medication differences are evidence for review, never instructions.
 
 Allowed examples:
 
@@ -15,6 +15,10 @@ Disallowed examples:
 - "Increase Amlodipine to 10mg."
 - "Stop taking Panadol."
 - "The patient has uncontrolled hypertension."
+
+## Hallucination safeguard
+
+Never invent a medication, appointment, dosage, or allergy that does not appear in the source files. If a field is not stated in any source, write "Not found in source documents" rather than guessing. If a value is illegible, write "Illegible" and flag the document.
 
 ## Data handling
 
@@ -34,4 +38,3 @@ Before a file is shared, a caregiver must verify:
 - discontinued items;
 - payment deadlines;
 - all important source references.
-

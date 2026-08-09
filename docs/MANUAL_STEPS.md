@@ -19,7 +19,7 @@ Review the commit history first. It contains separate application, reconciliatio
 ## 3. Import and run the WorkBuddy skill
 
 1. Open WorkBuddy and sign in.
-2. Go to **Skills** and import `artifacts/carecircle-copilot-workbuddy.zip`.
+2. Go to **Skills** and import `artifacts/kithrelay-workbuddy.zip`.
 3. Confirm the skill is enabled.
 4. Copy `fixtures/mdm-tan` to an isolated demo folder.
 5. Start a new task using that folder and default permissions.
@@ -28,7 +28,7 @@ Review the commit history first. It contains separate application, reconciliatio
 8. Compare the generated files with `fixtures/expected` and complete the table in `docs/EVALUATION.md`.
 9. Capture screenshots only after verifying the output.
 
-If WorkBuddy rejects the ZIP, create a skill from natural language and provide `workbuddy-skill/carecircle-copilot/SKILL.md` as the requirements source. Export the accepted package and replace the ZIP artifact.
+If WorkBuddy rejects the ZIP, create a skill from natural language and provide `workbuddy-skill/kithrelay/SKILL.md` as the requirements source. Export the accepted package and replace the ZIP artifact.
 
 ## 4. Deploy the companion app
 
@@ -50,4 +50,3 @@ Tencent EdgeOne is also suitable if the organizers prefer Tencent deployment. Up
 - Team member names and final branding.
 - Social-media bonus post, if still part of the rules.
 - Final portal upload and confirmation receipt.
-

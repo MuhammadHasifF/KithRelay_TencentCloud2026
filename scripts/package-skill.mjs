@@ -6,11 +6,11 @@ import { ZipArchive } from 'archiver'
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(scriptDirectory, '..')
-const skillDirectory = path.join(projectRoot, 'workbuddy-skill', 'carecircle-copilot')
+const skillDirectory = path.join(projectRoot, 'workbuddy-skill', 'kithrelay')
 const artifactDirectory = path.join(projectRoot, 'artifacts')
 const publicDirectory = path.join(projectRoot, 'public', 'downloads')
-const artifactPath = path.join(artifactDirectory, 'carecircle-copilot-workbuddy.zip')
-const publicPath = path.join(publicDirectory, 'carecircle-copilot-workbuddy.zip')
+const artifactPath = path.join(artifactDirectory, 'kithrelay-workbuddy.zip')
+const publicPath = path.join(publicDirectory, 'kithrelay-workbuddy.zip')
 
 await mkdir(artifactDirectory, { recursive: true })
 await mkdir(publicDirectory, { recursive: true })

@@ -1,6 +1,8 @@
-# CareCircle Copilot
+# KithRelay
 
-CareCircle Copilot is a source-linked eldercare paperwork agent for family caregivers. It reconciles appointment letters, dated medication lists, and payment notices into a unified care calendar and a next-visit briefing—while requiring a human to verify important changes before sharing anything.
+**Every care detail, carried forward.**
+
+KithRelay is a source-linked care coordination agent for family caregivers. It reconciles appointment letters, dated medication lists, and payment notices into a unified care calendar and next-visit briefing—while requiring a human to verify important changes before sharing anything.
 
 Built for the Tencent Cloud Hackathon 2026 “Age Well” AI Agent track.
 
@@ -51,7 +53,7 @@ npm run package:skill
 
 Then:
 
-1. Import `artifacts/carecircle-copilot-workbuddy.zip` in WorkBuddy’s Skills area.
+1. Import `artifacts/kithrelay-workbuddy.zip` in WorkBuddy’s Skills area.
 2. Select a copy of `fixtures/mdm-tan` as the task workspace.
 3. Open the web app’s **WorkBuddy** page and copy the prepared task prompt.
 4. Verify WorkBuddy’s `care_calendar.md` and `briefing.md` against `fixtures/expected`.
@@ -75,7 +77,7 @@ Import the repository; `netlify.toml` contains the build settings.
 
 ### GitHub Pages
 
-Run the **Deploy CareCircle to GitHub Pages** workflow manually after enabling Pages with “GitHub Actions” as its source.
+Run the **Deploy KithRelay to GitHub Pages** workflow manually after enabling Pages with “GitHub Actions” as its source.
 
 ## Safety position
 
@@ -87,6 +89,7 @@ This is an administrative organization tool, not a medical device or medical adv
 - [Rules and assumptions](docs/RULES_AND_ASSUMPTIONS.md)
 - [Evaluation plan](docs/EVALUATION.md)
 - [Privacy and safety](docs/PRIVACY_AND_SAFETY.md)
+- [Brand system](docs/BRAND.md)
 - [Manual handoff steps](docs/MANUAL_STEPS.md)
 - [Submission checklist](docs/SUBMISSION_CHECKLIST.md)
 
@@ -94,7 +97,7 @@ This is an administrative organization tool, not a medical device or medical adv
 
 ```text
 src/                    Companion application and reconciliation engine
-workbuddy-skill/        Importable CareCircle WorkBuddy skill source
+workbuddy-skill/        Importable KithRelay WorkBuddy skill source
 fixtures/mdm-tan/       Synthetic input folder
 fixtures/expected/      Reference outputs for WorkBuddy evaluation
 artifacts/               Generated submission-ready skill ZIP

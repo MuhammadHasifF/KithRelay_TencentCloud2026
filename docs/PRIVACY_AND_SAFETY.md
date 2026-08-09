@@ -22,7 +22,7 @@ References:
 
 ## Healthcare boundary
 
-CareCircle performs administrative organization only. It may state what documents say and show how those statements changed over time. It must not:
+KithRelay performs administrative organization only. It may state what documents say and show how those statements changed over time. It must not:
 
 - diagnose a condition;
 - recommend treatment;
@@ -45,4 +45,3 @@ The deployed browser app:
 - rejects image-only PDFs instead of pretending OCR succeeded.
 
 External font files may be requested from Google Fonts. If a fully offline demonstration is needed, replace the font import in `src/styles.css` with system fonts before deployment.
-

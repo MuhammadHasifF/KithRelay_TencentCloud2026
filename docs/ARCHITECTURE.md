@@ -2,11 +2,11 @@
 
 ## System boundary
 
-CareCircle uses a hybrid design. WorkBuddy demonstrates autonomous planning and document operations; the web application provides a polished, deterministic review and evidence surface.
+KithRelay uses a hybrid design. WorkBuddy demonstrates autonomous planning and document operations; the web application provides a polished, deterministic review and evidence surface.
 
 ```mermaid
 flowchart LR
-    A[Synthetic care documents] --> B[WorkBuddy + CareCircle skill]
+    A[Synthetic care documents] --> B[WorkBuddy + KithRelay skill]
     B --> C[care_calendar.md]
     B --> D[briefing.md]
     A --> E[Companion web application]
@@ -24,7 +24,7 @@ flowchart LR
 
 - Selects and reads files in an authorized workspace.
 - Plans the multi-step reconciliation task.
-- Applies the installed CareCircle domain skill.
+- Applies the installed KithRelay domain skill.
 - Writes ready-to-review Markdown artifacts.
 
 ### Companion application
@@ -66,4 +66,3 @@ The hackathon demo is intentionally static. This provides:
 - less risk of accidentally retaining synthetic or future user data.
 
 A production pilot would add authenticated storage, consent records, audited access, approved OCR, and a formal healthcare/privacy review.
-

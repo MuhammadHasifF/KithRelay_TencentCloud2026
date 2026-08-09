@@ -1,4 +1,4 @@
-name: Deploy CareCircle to GitHub Pages
+name: Deploy KithRelay to GitHub Pages
 
 on:
   workflow_dispatch:
@@ -38,4 +38,3 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-

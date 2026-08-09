@@ -7,9 +7,9 @@ import {
   HeartPulse,
   Pill,
   ShieldCheck,
-  Sparkles,
   TriangleAlert,
   WalletCards,
+  Waypoints,
 } from 'lucide-react'
 import { formatDate, formatTime } from '../lib/date'
 import type { AppointmentBriefing, CarePlan } from '../types/care'
@@ -39,13 +39,13 @@ export function Overview({
       <section className="hero-panel">
         <div className="hero-copy">
           <div className="section-kicker">
-            <Sparkles size={15} />
-            Reconciled care workspace
+            <Waypoints size={15} />
+            Every care detail, carried forward
           </div>
-          <h2>Good afternoon. Here’s what needs attention for {plan.profile.preferredName}.</h2>
+          <h2>Care handoff for {plan.profile.preferredName}</h2>
           <p>
-            CareCircle read {plan.documents.length} source documents, merged repeated events,
-            and preserved the evidence behind every important change.
+            KithRelay reviewed {plan.documents.length} source documents, reconciled repeated events,
+            and kept the evidence attached to every important change.
           </p>
           <button className="primary-button" type="button" onClick={() => onNavigate('review')}>
             Review {plan.flags.filter((flag) => !flag.reviewed).length} findings
@@ -152,4 +152,3 @@ export function Overview({
     </div>
   )
 }
-

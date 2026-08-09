@@ -8,7 +8,7 @@ import { buildAppointmentBriefing, buildCarePlan, inferDocumentKind } from './re
 
 const analysisDate = '2026-08-09'
 
-describe('CareCircle reconciliation', () => {
+describe('KithRelay reconciliation', () => {
   it('merges the original and rescheduled appointment into one active visit', () => {
     const plan = buildCarePlan(demoDocuments, analysisDate)
     const cardiology = plan.appointments.find((appointment) => appointment.reference === 'CAR-2026-08152034')

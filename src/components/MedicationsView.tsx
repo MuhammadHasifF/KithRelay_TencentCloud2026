@@ -17,7 +17,7 @@ export function MedicationsView({ plan, onOpenSource }: MedicationsViewProps) {
       <div className="view-heading">
         <div><p className="section-kicker"><Pill size={15} /> Cross-document comparison</p><h2>Medication reconciliation</h2><p>The newest documented list is compared against earlier sources. This is not prescribing advice.</p></div>
       </div>
-      <div className="safety-banner"><Stethoscope size={19} /><div><strong>Confirm with a qualified healthcare professional</strong><span>CareCircle surfaces documented changes; it never recommends starting, stopping, or changing a medicine.</span></div></div>
+      <div className="safety-banner"><Stethoscope size={19} /><div><strong>Confirm with a qualified healthcare professional</strong><span>KithRelay surfaces documented changes; it never recommends starting, stopping, or changing a medicine.</span></div></div>
       <section className="medication-grid">
         {current.map((medication) => (
           <article className={`panel medication-card ${medication.change ? 'changed' : ''}`} key={medication.id}>

@@ -2,11 +2,11 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import App from './App'
 
-describe('CareCircle application', () => {
+describe('KithRelay application', () => {
   it('shows the reconciled demo story on first load', () => {
     render(<App />)
 
-    expect(screen.getByRole('heading', { name: /needs attention for Mdm Tan/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /care handoff for Mdm Tan/i })).toBeInTheDocument()
     expect(screen.getByText('Appointment rescheduled')).toBeInTheDocument()
     expect(screen.getByText('Amlodipine increased')).toBeInTheDocument()
     expect(screen.getByText('Synthetic demo data')).toBeInTheDocument()

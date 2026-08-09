@@ -9,15 +9,15 @@
 - [x] Expected outputs committed
 - [x] Automated tests passing
 - [x] Privacy and healthcare boundaries documented
-- [ ] Repository pushed to GitHub
+- [x] Repository pushed to GitHub
 
 ## Live product
 
 - [ ] WorkBuddy skill imported successfully on the submission machine
-- [ ] Golden scenario run and manually evaluated
+- [x] Golden scenario run and manually evaluated
 - [ ] Companion app deployed
 - [ ] Deployed skill-download link tested
-- [ ] Mobile layout checked
+- [x] Mobile layout checked
 - [ ] Public URL opened in a signed-out/private browser
 
 ## Organizer deliverables
@@ -25,16 +25,15 @@
 - [ ] Original handbook requirements rechecked
 - [ ] Project Introduction Deck completed by team
 - [ ] Demo video completed by team, if required
-- [ ] Team/project naming convention applied
+- [x] Team/project naming convention applied
 - [ ] Web link and/or Skill ZIP attached
 - [ ] GitHub repository included as supporting evidence
 - [ ] Submission receipt saved
 
 ## Final safety check
 
-- [ ] No real patient data anywhere
-- [ ] No real NRIC, phone number, or address in screenshots
-- [ ] No claim of fully local WorkBuddy processing
-- [ ] No medical diagnosis or treatment recommendation
-- [ ] Human-review step visible in the demo
-
+- [x] No real patient data anywhere
+- [x] No real NRIC, phone number, or address in screenshots
+- [x] No claim of fully local WorkBuddy processing
+- [x] No medical diagnosis or treatment recommendation
+- [x] Human-review step visible in the demo

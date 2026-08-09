@@ -101,3 +101,12 @@ export type CarePlan = {
   timeline: CareEvent[]
 }
 
+export type AppointmentBriefing = {
+  appointment?: Appointment
+  medications: Medication[]
+  reviewItems: ReviewFlag[]
+  suggestedQuestions: string[]
+  generatedAt: string
+  disclaimer: string
+}
+

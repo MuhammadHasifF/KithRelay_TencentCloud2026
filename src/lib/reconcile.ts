@@ -320,9 +320,19 @@ function parseMedications(documents: SourceDocument[]) {
         status: wasDiscontinued ? 'discontinued' : 'current',
         effectiveDate: latestHistory?.snapshot.date ?? latestSnapshot.date,
         change,
-        sources: history.map(({ snapshot, entry }) =>
-          sourceReference(snapshot.document, entry?.excerpt),
-        ),
+        sources: [
+          ...history.map(({ snapshot, entry }) =>
+            sourceReference(snapshot.document, entry?.excerpt),
+          ),
+          ...(wasDiscontinued && !history.some(({ snapshot }) => snapshot.document.id === latestSnapshot.document.id)
+            ? [sourceReference(
+                latestSnapshot.document,
+                latestSnapshot.document.content
+                  .split(/[.\n]/)
+                  .find((sentence) => sentence.toLowerCase().includes(`${name.toLowerCase()} discontinued`)),
+              )]
+            : []),
+        ],
       }
     })
     .filter((medication): medication is Medication => Boolean(medication))

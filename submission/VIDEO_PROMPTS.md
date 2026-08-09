@@ -6,9 +6,44 @@ The recovered planning material lists a web link or Skill ZIP plus the Project I
 
 - **Main version:** 16:9, 1920×1080, 30 fps, approximately 1 minute 50 seconds.
 - **Social cut:** 9:16, 1080×1920, approximately 45–60 seconds, created only after the main version works.
-- **Core rule:** Use real screen recordings for every claim that the product or WorkBuddy works. Use Gemini-generated footage only for the human opening, abstract transition, and emotional closing.
+- **Core rule:** Use real screen recordings for every claim that the product or WorkBuddy works. Use Gemini-generated footage only for the human opening and emotional closing.
 
 AI video generators often distort interface text. A generated imitation of the website is not evidence. Never ask Gemini to recreate KithRelay or WorkBuddy from memory.
+
+## Non-negotiable production workflow
+
+Do not ask one generative-video model to create the clips, narration, product interface, captions, and final edit together. That workflow causes changing voices, misspelled text, and invented UI. Use this order:
+
+1. Record all KithRelay and WorkBuddy product footage from the real applications.
+2. Generate only Clips 1 and 10 as silent human B-roll in Gemini.
+3. Assemble a silent picture cut in a timeline editor at the exact timings below.
+4. Generate the full narration once as one continuous audio file. Never generate narration clip by clip.
+5. Add titles, statistics, callouts, filenames, captions, logos, and the URL as native editor text layers only.
+6. Add music and sound effects after the narrator track is locked.
+7. Export once, then inspect every word and every UI frame at 100% scale.
+
+If Gemini creates any dialogue, narration, lip-sync, captions, signs, logos, UI, or document text inside a generated clip, mute and reject that clip. Do not try to repair generated words.
+
+## Voice continuity lock
+
+- Produce exactly one narration file covering 00:00–01:50. Cut that single file on the editing timeline if necessary; never regenerate individual sentences.
+- Use one adult Singaporean English female narrator throughout: approximately 35–45 years old, warm, calm, capable, and documentary-like.
+- Keep the same accent, vocal identity, microphone distance, room tone, pitch, and energy from the first word to the last.
+- Target 112–118 words per minute. Do not speed up individual sections to force them into a clip.
+- Avoid character acting, sales energy, exaggerated emotion, whispering, newsreader delivery, British/American accent drift, or switching between male and female voices.
+- Use no dialogue from the caregiver or senior. Their generated clips must show no visible speaking.
+- If the tool exposes a voice name, reference audio, seed, style strength, or consistency control, lock it once and reuse the identical setting.
+- If any sentence sounds like a different speaker, regenerate the entire narration in one pass rather than patching that sentence.
+
+## Text integrity lock
+
+- Gemini must render zero critical text. All product text comes from real screen recordings; all other text is typed manually in the editor.
+- Disable automatic rewriting, translation, caption styling, logo generation, and AI interface enhancement.
+- Import `KITHRELAY_CAPTIONS.srt` after the final voice track is placed. Adjust cue timing only; do not rewrite its wording.
+- Use Inter Semibold, 42–46 px at 1080p, no more than two caption lines, and approximately 38 characters per line.
+- Keep captions inside a 10% title-safe margin and place them in a 94% opaque white box with `#20343E` text.
+- Copy these spellings exactly: `KithRelay`, `WorkBuddy`, `Tencent Cloud`, `care_calendar.md`, `briefing.md`, `Mdm Tan`, `Amlodipine`, `Vitamin D3`, `Panadol`, `SGD`.
+- Never use generative fill, motion interpolation, image-to-video, or AI restyling on real website or WorkBuddy recordings.
 
 ## Assets to prepare
 
@@ -19,6 +54,7 @@ Already available:
 - `assets/03-workbuddy-sync.png`
 - `assets/04-review-findings.png`
 - `assets/05-mobile-overview.png`
+- `KITHRELAY_CAPTIONS.srt`
 
 Record manually:
 
@@ -26,9 +62,9 @@ Record manually:
 2. Choosing **Explore the demo instantly**.
 3. Navigating Overview → Documents → Review findings → WorkBuddy sync.
 4. Selecting a clean copy of the synthetic `fixtures/mdm-tan` folder.
-5. Opening WorkBuddy Desktop, selecting the same folder, enabling KithRelay, and starting the prepared task.
+5. Clicking **Copy task & open WorkBuddy**, selecting the same folder in WorkBuddy Desktop, pasting the copied short task, and starting the installed KithRelay skill.
 6. WorkBuddy visibly reading files, showing execution progress, and creating `care_calendar.md` plus `briefing.md`.
-7. Returning to KithRelay and choosing **Sync results**.
+7. Returning to KithRelay and recording the two drafts appearing automatically within the five-second check window. Keep a separate take of **Check now** only as a fallback.
 8. Reviewing source-linked findings and exporting a care calendar or briefing.
 
 ## Recording safety checklist
@@ -43,13 +79,15 @@ Record manually:
 - Let WorkBuddy complete a real run before editing. Do not fake execution progress.
 - If a live step is slow, use a labelled time compression such as **“Processing condensed for time”** rather than pretending it was instantaneous.
 - Verify the generated facts before recording the final result.
+- Keep KithRelay open during the WorkBuddy run because automatic folder checks occur only in a visible page.
+- If browser permission has expired, record the real **Reconnect folder** step rather than implying unattended access.
 
 ## Master visual prompt for Gemini-generated clips
 
 Paste this style block at the beginning of every Gemini generation prompt:
 
 ```text
-Create a premium Singapore public-health technology film in a calm documentary style. Bright high-key daylight, clean whites, soft clinical grey, restrained teal and coral accents, natural skin tones, realistic Singapore HDB environment, respectful and capable portrayal of ageing, precise cinematic composition, gentle controlled camera motion, 16:9 landscape, 1920x1080, 24 fps, no text rendered inside the video, no logos, no identifiable documents, no real medical data, no hospital emergency, no sadness-porn, no futuristic holograms, no sci-fi HUD, no robots, no neon green cast, no distorted hands, no extra fingers, no warped paper, no gibberish writing, no watermarks. Leave clear negative space for editor-added captions.
+VISUAL-ONLY SILENT CLIP. Generate no narration, dialogue, lip-sync, music, ambient audio, captions, labels, signs, logos, interface text, or legible document text. Create a premium Singapore public-health technology film in a calm documentary style. Bright high-key daylight, clean whites, soft clinical grey, restrained teal and coral accents, natural skin tones, realistic Singapore HDB environment, respectful and capable portrayal of ageing, precise cinematic composition, gentle controlled camera motion, 16:9 landscape, 1920x1080, 30 fps, no real medical data, no hospital emergency, no sadness-porn, no futuristic holograms, no sci-fi HUD, no robots, no neon green cast, no distorted hands, no extra fingers, no warped paper, no gibberish writing, no watermarks. Nobody speaks or mouths words. Leave clear negative space for editor-added captions. Return one silent visual clip only.
 ```
 
 Maintain the same human continuity in generated clips:
@@ -57,6 +95,7 @@ Maintain the same human continuity in generated clips:
 - Caregiver: Singaporean Chinese woman, early-to-mid 40s, practical smart-casual clothing, calm but initially overloaded.
 - Senior: Singaporean Chinese woman, late 70s, independent and engaged, not frail or passive.
 - Home: bright, tidy Singapore HDB dining/living area with warm daylight and understated local realism.
+- Generate Clip 1 first and export a clean reference still of both people and the room. Upload that still as the character-and-location reference for Clip 10; do not rely on a text description alone to preserve faces and clothing.
 
 ## Editing system
 
@@ -68,9 +107,10 @@ Maintain the same human continuity in generated clips:
 - Captions: white box at 92–96% opacity with dark text; avoid floating text directly over busy footage.
 - Transitions: 6–10 frame cross-dissolve or clean match cut. No glitch, whip, spin, or flashy template transitions.
 - Music: quiet modern documentary bed, warm piano/marimba pulse with subtle electronic texture, no dramatic trailer percussion.
-- Voice: one calm Singaporean English narrator, confident and conversational, approximately 145 words per minute.
+- Voice: one continuous locked Singaporean English narrator track, confident and conversational, 112–118 words per minute.
 - Mix target: voice clearly above music; lower music by approximately 10–14 dB under narration.
-- Add burned-in captions after voiceover is final.
+- Mute every Gemini-generated clip before adding sound effects.
+- Add burned-in captions from `KITHRELAY_CAPTIONS.srt` only after voiceover is final.
 
 ## Clip-by-clip production plan
 
@@ -88,7 +128,8 @@ A medium-wide shot in a bright Singapore HDB dining area. The same caregiver sit
 ```
 
 **Editor-added text:** `Caregiving includes invisible admin.`  
-**Voiceover:** “Family caregiving is not only hands-on care. It is also hours spent comparing letters, medicine lists, dates, and bills.”  
+**Voiceover:** “Caregiving also means comparing appointment letters, medicine lists, dates, and bills.”
+
 **Audio:** Soft paper movement; music starts quietly.
 
 ### Clip 2 — Evidence-based scale
@@ -106,7 +147,7 @@ A medium-wide shot in a bright Singapore HDB dining area. The same caregiver sit
 - Footer: `Source: Duke-NUS Medical School, 2024`.
 - Do not ask Gemini to render these numbers.
 
-**Voiceover:** “In Singapore, primary informal caregivers provide an average of 33 hours of care each week. That workload will matter even more as the population ages.”
+**Voiceover:** “In Singapore, primary informal caregivers provide an average of 33 care hours each week.”
 
 ### Clip 3 — Introduce KithRelay
 
@@ -121,11 +162,7 @@ A medium-wide shot in a bright Singapore HDB dining area. The same caregiver sit
 3. Click **Explore the demo instantly**.
 4. Let the overview finish loading.
 
-**Optional Gemini image-to-video fallback:** Upload `assets/01-login.png` and use the prompt below only if real recording is impossible.
-
-```text
-Use the uploaded screenshot as an exact immutable pixel reference. Do not redraw, replace, regenerate, restyle, blur, or alter any word, icon, colour, control, spacing, or logo. Create only a very subtle 2% camera push-in over six seconds around the static screenshot. Every UI pixel and every line of text must remain perfectly stable and readable. No new UI elements, no cursor, no reflections, no depth warp, no screen flicker.
-```
+**Safe fallback if recording is impossible:** Place `assets/01-login.png` directly in the timeline editor and keyframe scale from 100% to 102%. Do not send the screenshot through Gemini or any image-to-video model.
 
 **Editor-added lower third:** `KithRelay — source-linked care coordination`  
 **Voiceover:** “KithRelay turns that fragmented paperwork into one source-linked care handoff a family can verify.”
@@ -150,7 +187,7 @@ Use the uploaded screenshot as an exact immutable pixel reference. Do not redraw
 - `3 current medicines`
 - `5 review findings`
 
-**Voiceover:** “Seven synthetic documents become one current timeline. KithRelay keeps the new appointment, surfaces medication changes, finds the payment deadline, and preserves the evidence.”
+**Voiceover:** “Seven synthetic documents become one current timeline: the latest appointment, medication changes, a payment deadline, and every supporting source.”
 
 ### Clip 5 — Source-linked human review
 
@@ -167,7 +204,7 @@ Use the uploaded screenshot as an exact immutable pixel reference. Do not redraw
 5. Do not mark everything reviewed yet.
 
 **Editor-added text:** `Evidence, not just an answer.`  
-**Voiceover:** “This is not a black-box summary. Every important change links back to the exact source files, and approval stays locked until a caregiver reviews the evidence.”
+**Voiceover:** “Every important change links to its exact source file, while approval remains locked until the caregiver reviews the evidence.”
 
 ### Clip 6 — Connect the desktop agent
 
@@ -178,14 +215,15 @@ Use the uploaded screenshot as an exact immutable pixel reference. Do not redraw
 **Capture:**
 
 1. Open **WorkBuddy sync**.
-2. Click **Connect folder**.
-3. Select the synthetic `KithRelay-Demo` folder.
-4. Show the connected state.
-5. Copy the prepared WorkBuddy task.
-6. Click **Open WorkBuddy** if the desktop protocol opens cleanly; otherwise cut manually to WorkBuddy.
+2. For the first-use take, click **Connect folder** and select the synthetic `KithRelay-Demo` folder. For a second take after refresh, show the truthful remembered or reconnect-permission state.
+3. Pause on **Auto-sync active** and the message that KithRelay checks every five seconds while the page is open.
+4. Click **Copy task & open WorkBuddy**. The button copies the concise task and launches the registered desktop protocol in one user action.
+5. If the desktop protocol confirmation appears, accept it on camera or cut cleanly to the already-open WorkBuddy window.
 
-**Editor-added diagram:** `Website ↔ authorized folder ↔ WorkBuddy`  
-**Voiceover:** “The browser and desktop agent connect through one caregiver-authorized folder. The website reviews it; WorkBuddy processes that same workspace.”
+**Editor-added diagram:** `Website review ↔ read-only authorized folder ↔ WorkBuddy task`
+
+**Editor-added micro-label:** `Remembered where supported · Permission remains user-controlled`
+**Voiceover:** “KithRelay and WorkBuddy share one authorized folder. The website remembers access where supported, copies the task, and opens the desktop agent.”
 
 ### Clip 7 — WorkBuddy autonomous execution
 
@@ -211,7 +249,7 @@ Use the uploaded screenshot as an exact immutable pixel reference. Do not redraw
 4. `Check every claim has evidence`
 5. `Write two review drafts`
 
-**Voiceover:** “Inside WorkBuddy, the KithRelay skill defines the goal and safety boundaries. WorkBuddy plans the folder task, invokes file operations, reconciles evidence across documents, checks traceability, and writes two review drafts.”
+**Voiceover:** “The installed skill gives WorkBuddy the workflow and safety boundaries. It inventories the folder, reconciles dates and medicines, verifies traceability, and writes two drafts.”
 
 **Do not say:** multi-agent, four parallel agents, fully local, diagnosis, clinical accuracy, or automatic calendar update.
 
@@ -226,11 +264,11 @@ Use the uploaded screenshot as an exact immutable pixel reference. Do not redraw
 1. In WorkBuddy or the folder, show `care_calendar.md` and `briefing.md` exist.
 2. Open one briefly and show the verification notice.
 3. Return to KithRelay.
-4. Click **Sync results**.
-5. Expand one result preview in the website.
+4. Keep the cursor still and record the status changing from **Waiting for files** to **2 of 2 ready** within the real five-second check window.
+5. Expand one result preview in the website and show the detected filename. If automatic detection does not occur during the take, use **Check now** and label it `Manual fallback`.
 
 **Editor-added text:** `care_calendar.md + briefing.md`  
-**Voiceover:** “The agent writes a care calendar and next-visit briefing into the same folder. One click syncs both results back into KithRelay for review.”
+**Voiceover:** “When the files appear, KithRelay detects the newest calendar and briefing automatically, then brings them back into the review workspace.”
 
 ### Clip 9 — Caregiver stays in control
 
@@ -247,7 +285,7 @@ Use the uploaded screenshot as an exact immutable pixel reference. Do not redraw
 5. Open the Export menu and show calendar, briefing, and evidence bundle options.
 
 **Editor-added text:** `Human-reviewed before sharing`  
-**Voiceover:** “KithRelay never makes the care decision. The caregiver verifies important details first, then exports a plan that stays attached to its sources.”
+**Voiceover:** “The caregiver verifies important details before approval, then exports the calendar, briefing, or source-linked evidence bundle.”
 
 ### Clip 10 — Human outcome
 
@@ -263,7 +301,7 @@ Continue with the exact same caregiver and senior in the same bright Singapore H
 ```
 
 **Editor-added text:** `Better prepared. Still human-led.`  
-**Voiceover:** “The result is not automated care. It is a better-prepared family, with less context lost between documents.”
+**Voiceover:** “The outcome is not automated care. It is a better-prepared family with less context lost.”
 
 ### Clip 11 — Closing card
 
@@ -284,40 +322,52 @@ Continue with the exact same caregiver and senior in the same bright Singapore H
 
 **Voiceover:** “KithRelay. Every care detail, carried forward—with its source.”
 
-## Full narration script
+## Single master narration generation
 
-Use this as the base voiceover and adjust only for natural timing:
+Paste the following prompt once. Generate one continuous narration file; do not submit each paragraph separately:
 
 ```text
-Family caregiving is not only hands-on care. It is also hours spent comparing letters, medicine lists, dates, and bills.
+Create one continuous voiceover for a 110-second documentary-style technology demo.
 
-In Singapore, primary informal caregivers provide an average of 33 hours of care each week. That workload will matter even more as the population ages.
+Use exactly one narrator for the entire recording: an adult Singaporean English woman, approximately 35 to 45 years old, with a warm, calm, capable, and conversational documentary delivery. Keep the identical vocal identity, accent, pitch, cadence, microphone distance, room tone, and emotional energy from beginning to end. Speak at 112 to 118 words per minute with brief natural pauses between paragraphs. Do not sound like an advertisement, news broadcast, virtual assistant, or dramatic trailer. Do not switch speakers, accents, age, gender, recording space, or vocal character. Do not add music, sound effects, introductions, commentary, or alternative takes.
 
-KithRelay turns that fragmented paperwork into one source-linked care handoff a family can verify.
+Pronounce KithRelay as “KITH relay.” Pronounce WorkBuddy as “Work Buddy.” Read 33 as “thirty-three.”
 
-Seven synthetic documents become one current timeline. KithRelay keeps the new appointment, surfaces medication changes, finds the payment deadline, and preserves the evidence.
+Read the script exactly as written. Do not paraphrase, add words, remove words, expand product names, or speak the timing labels. Return one clean WAV file, 48 kHz, mono, with no processing other than gentle loudness normalization. If one sentence fails, regenerate the complete file using this same prompt; do not create a replacement sentence with a new voice.
+```
 
-This is not a black-box summary. Every important change links back to the exact source files, and approval stays locked until a caregiver reviews the evidence.
+Use this exact script and do not adjust its wording:
 
-The browser and desktop agent connect through one caregiver-authorized folder. The website reviews it; WorkBuddy processes that same workspace.
+```text
+Caregiving also means comparing appointment letters, medicine lists, dates, and bills.
 
-Inside WorkBuddy, the KithRelay skill defines the goal and safety boundaries. WorkBuddy plans the folder task, invokes file operations, reconciles evidence across documents, checks traceability, and writes two review drafts.
+In Singapore, primary informal caregivers provide an average of 33 care hours each week.
 
-The agent writes a care calendar and next-visit briefing into the same folder. One click syncs both results back into KithRelay for review.
+KithRelay turns fragmented paperwork into one source-linked care handoff a family can verify.
 
-KithRelay never makes the care decision. The caregiver verifies important details first, then exports a plan that stays attached to its sources.
+Seven synthetic documents become one current timeline: the latest appointment, medication changes, a payment deadline, and every supporting source.
 
-The result is not automated care. It is a better-prepared family, with less context lost between documents.
+Every important change links to its exact source file, while approval remains locked until the caregiver reviews the evidence.
+
+KithRelay and WorkBuddy share one authorized folder. The website remembers access where supported, copies the task, and opens the desktop agent.
+
+The installed skill gives WorkBuddy the workflow and safety boundaries. It inventories the folder, reconciles dates and medicines, verifies traceability, and writes two drafts.
+
+When the files appear, KithRelay detects the newest calendar and briefing automatically, then brings them back into the review workspace.
+
+The caregiver verifies important details before approval, then exports the calendar, briefing, or source-linked evidence bundle.
+
+The outcome is not automated care. It is a better-prepared family with less context lost.
 
 KithRelay. Every care detail, carried forward—with its source.
 ```
 
-## Final Gemini/editor instruction
+## Silent picture-assembly instruction
 
-Paste this after all clips are uploaded to Gemini or the editor:
+Use this only to produce a picture-only rough cut. Add the locked voice, text, captions, and music afterward in a normal timeline editor:
 
 ```text
-Assemble the supplied clips into a 16:9, 1920x1080, approximately 110-second documentary-style product demo. Preserve all real screen recordings exactly; do not regenerate, restyle, replace, or alter their interface text. Use generated human B-roll only at the opening and near the close. Follow the supplied timeline, narration, caption text, and colour system. Use clean cuts or short cross-dissolves, restrained documentary music, and readable burned-in captions. Keep the product demonstration as the visual majority of the film. Do not add new product features, statistics, testimonials, logos, hospital endorsements, medical claims, fake WorkBuddy actions, fake UI, or real patient information. Do not use sci-fi AI imagery, green colour washes, glitch effects, dramatic medical footage, or template watermarks. Export H.264 MP4, 1080p, 30 fps, high quality, with voice centred and music at least 10 dB lower than narration. Before export, inspect every frame containing UI for warped text, changed numbers, hallucinated buttons, cropped controls, exposed personal data, cursor mistakes, and unreadable captions. If any UI frame has been regenerated or distorted, replace it with the original screen recording.
+Create a SILENT, PICTURE-ONLY rough cut from the supplied clips in the exact 00:00–01:50 timeline. Output 16:9, 1920x1080, 30 fps. Preserve every real KithRelay and WorkBuddy screen recording exactly as supplied. Do not regenerate, redraw, sharpen with AI, restyle, crop away controls, replace text, create reflections, or alter interface pixels. Use generated human B-roll only at 00:00–00:07 and 01:35–01:43. Use clean cuts or 6–10 frame cross-dissolves. Keep product and WorkBuddy footage as the visual majority. Generate no narration, dialogue, music, sound effects, captions, titles, labels, statistics, logos, URLs, QR codes, filenames, or interface overlays. Do not invent product features, testimonials, hospital endorsements, medical claims, WorkBuddy actions, patient information, or UI. Do not use sci-fi imagery, green washes, glitches, dramatic medical footage, or template watermarks. Return one silent visual master only. All text and audio will be added later as locked editor layers.
 ```
 
 ## Final video QA
@@ -326,11 +376,17 @@ Assemble the supplied clips into a 16:9, 1920x1080, approximately 110-second doc
 - KithRelay spelling and URL are correct in every title and caption.
 - At least 60% of the runtime is real product or WorkBuddy footage.
 - The WorkBuddy task shown is a real completed run using the synthetic fixture folder.
+- The automatic result-detection shot is a real continuous capture, not an edited status change.
 - No unsupported feature or impact claim appears.
 - No generated clip contains legible fake paperwork or UI.
+- Exactly one continuous narrator voice is used; no sentence sounds recorded by a different speaker.
+- Generated B-roll is muted and contains no visible speaking or lip-sync.
+- Every title, statistic, filename, caption, URL, and logo is an editor layer, never AI-rendered video text.
+- Captions match `KITHRELAY_CAPTIONS.srt` exactly with no automatic paraphrasing or misspelling.
 - The 33-hour statistic is attributed to Duke-NUS, 2024.
 - “Synthetic demo data” is visible or stated.
 - Human review and the administrative-only boundary are visible.
+- The video never implies event-driven background watching, automatic WorkBuddy task initiation, or fully local AI processing.
 - The video is under 2 minutes.
 - Captions remain inside title-safe margins on both desktop and mobile playback.
 - Voiceover is understandable without music; captions make it understandable without sound.

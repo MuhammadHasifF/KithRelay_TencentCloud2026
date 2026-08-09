@@ -15,7 +15,7 @@ import {
   Waypoints,
   X,
 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AuthScreen } from './components/AuthScreen'
 import { CalendarView } from './components/CalendarView'
 import { DocumentsView } from './components/DocumentsView'
@@ -30,7 +30,14 @@ import { appointmentBriefingMarkdown, careCalendarMarkdown, downloadText } from 
 import { readSourceFiles, type FileIssue } from './lib/files'
 import { buildAppointmentBriefing, buildCarePlan } from './lib/reconcile'
 import { buildTaskFile, writeWorkspaceFile } from './lib/workbuddy'
-import { clearWorkspaceHandle, loadWorkspaceHandle, saveWorkspaceHandle, verifyWorkspacePermission } from './lib/workspace'
+import {
+  forgetWorkspaceHandle,
+  loadWorkspaceHandle,
+  queryWorkspacePermission,
+  requestWorkspacePermission,
+  saveWorkspaceHandle,
+  scanWorkspace,
+} from './lib/workspace'
 import type { SourceDocument } from './types/care'
 
 type ViewKey = 'overview' | 'calendar' | 'medications' | 'documents' | 'review' | 'workbuddy'
@@ -39,8 +46,11 @@ type DirectoryPickerWindow = Window & {
   showDirectoryPicker?: (options?: { mode?: 'read' | 'readwrite' }) => Promise<FileSystemDirectoryHandle>
 }
 
-type IterableDirectoryHandle = FileSystemDirectoryHandle & {
-  values: () => AsyncIterableIterator<FileSystemHandle>
+type WorkspaceConnectionStatus = 'restoring' | 'disconnected' | 'permission-needed' | 'connected' | 'unsupported'
+
+type WorkspaceSyncOptions = {
+  background?: boolean
+  forceSources?: boolean
 }
 
 const navigation: Array<{ key: ViewKey; label: string; icon: typeof LayoutDashboard }> = [
@@ -73,13 +83,14 @@ function WorkspaceApp({ session, onSignOut }: WorkspaceAppProps) {
   const [exportOpen, setExportOpen] = useState(false)
   const [workspaceHandle, setWorkspaceHandle] = useState<FileSystemDirectoryHandle>()
   const [workspaceName, setWorkspaceName] = useState<string>()
+  const [workspaceStatus, setWorkspaceStatus] = useState<WorkspaceConnectionStatus>('restoring')
+  const [workspaceNotice, setWorkspaceNotice] = useState('')
   const [workspaceError, setWorkspaceError] = useState('')
   const [isSyncing, setIsSyncing] = useState(false)
   const [workBuddyArtifacts, setWorkBuddyArtifacts] = useState<WorkBuddyArtifacts>({})
-  const [needsPermission, setNeedsPermission] = useState(false)
-  const [taskWritten, setTaskWritten] = useState(false)
-  const [watchStatus, setWatchStatus] = useState<{ checkedAt?: string; fileCount?: number; sawCalendar?: boolean; sawBriefing?: boolean; error?: string }>({})
-  const lastOutputsRef = useRef<{ calendar?: string; briefing?: string }>({})
+  const syncInFlightRef = useRef(false)
+  const sourceSignatureRef = useRef('')
+  const artifactSignatureRef = useRef('')
 
   const basePlan = useMemo(() => buildCarePlan(documents, analysisDate), [documents, analysisDate])
   const plan = useMemo(() => ({
@@ -90,6 +101,7 @@ function WorkspaceApp({ session, onSignOut }: WorkspaceAppProps) {
   const selectedDocument = plan.documents.find((document) => document.id === sourceDocumentId)
   const isDemo = documents.length === demoDocuments.length && documents.every((document, index) => document.id === demoDocuments[index].id)
   const accountInitials = session.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase()
+  const activeWorkspaceName = workspaceStatus === 'connected' ? workspaceName : undefined
 
   function resetReviewState() {
     setReviewedFlagIds([])
@@ -109,185 +121,183 @@ function WorkspaceApp({ session, onSignOut }: WorkspaceAppProps) {
     setIsReading(false)
   }
 
-  async function syncWorkspace(handle = workspaceHandle) {
-    if (!handle) return
+  const syncWorkspace = useCallback(async (handle: FileSystemDirectoryHandle, options: WorkspaceSyncOptions = {}) => {
+    if (syncInFlightRef.current) return
 
-    setIsSyncing(true)
-    setIsReading(true)
+    syncInFlightRef.current = true
+    if (!options.background) setIsSyncing(true)
     setWorkspaceError('')
 
+    let readingSources = false
+
     try {
-      const sourceFiles: File[] = []
-      let calendar: string | undefined
-      let briefingOutput: string | undefined
+      const snapshot = await scanWorkspace(handle)
+      const sourceChanged = options.forceSources || snapshot.sourceSignature !== sourceSignatureRef.current
 
-      for await (const entry of (handle as IterableDirectoryHandle).values()) {
-        if (entry.kind !== 'file') continue
-        const file = await (entry as FileSystemFileHandle).getFile()
-        const lowerName = file.name.toLowerCase()
+      if (sourceChanged) {
+        sourceSignatureRef.current = snapshot.sourceSignature
 
-        if (lowerName === 'care_calendar.md') {
-          calendar = await file.text()
-        } else if (lowerName === 'briefing.md') {
-          briefingOutput = await file.text()
-        } else if (!['care_plan.json', 'task.md', 'readme.md'].includes(lowerName) && (/\.(txt|md|csv|json|pdf)$/i.test(file.name) || file.type.startsWith('image/'))) {
-          sourceFiles.push(file)
+        if (snapshot.sourceFiles.length) {
+          readingSources = true
+          setIsReading(true)
+          const result = await readSourceFiles(snapshot.sourceFiles)
+          setDocuments(result.documents)
+          setFileIssues(result.issues)
+          setAnalysisDate(new Date().toISOString().slice(0, 10))
+          setReviewedFlagIds([])
+          setApproved(false)
+        } else if (!options.background) {
+          setWorkspaceError('No supported source documents were found in this folder.')
         }
       }
 
-      if (sourceFiles.length) {
-        const result = await readSourceFiles(sourceFiles)
-        setDocuments(result.documents)
-        setFileIssues(result.issues)
-        setAnalysisDate(new Date().toISOString().slice(0, 10))
-        resetReviewState()
-      } else {
-        setWorkspaceError('No supported source documents were found in this folder.')
-      }
-
-      lastOutputsRef.current = { calendar, briefing: briefingOutput }
-      setWorkBuddyArtifacts({
-        calendar,
-        briefing: briefingOutput,
-        lastSynced: new Date().toISOString(),
-      })
+      const checkedAt = new Date().toISOString()
+      const artifactsChanged = snapshot.artifactSignature !== artifactSignatureRef.current
+      artifactSignatureRef.current = snapshot.artifactSignature
+      setWorkBuddyArtifacts((current) => ({
+        calendar: snapshot.calendar?.content,
+        calendarFilename: snapshot.calendar?.filename,
+        briefing: snapshot.briefing?.content,
+        briefingFilename: snapshot.briefing?.filename,
+        lastChecked: checkedAt,
+        receivedAt: artifactsChanged && snapshot.artifactSignature ? checkedAt : current.receivedAt,
+      }))
       setWorkspaceName(handle.name)
+      setWorkspaceStatus('connected')
     } catch (error) {
-      setWorkspaceError(error instanceof Error ? error.message : 'The care folder could not be read.')
-    } finally {
-      setIsReading(false)
-      setIsSyncing(false)
-    }
-  }
-
-  // Lightweight poll: read only the two WorkBuddy output files and update the
-  // preview when they change, without touching source documents or review state.
-  async function refreshArtifacts(handle: FileSystemDirectoryHandle) {
-    try {
-      let calendar: string | undefined
-      let briefingOutput: string | undefined
-      let fileCount = 0
-      let sawCalendar = false
-      let sawBriefing = false
-
-      for await (const entry of (handle as IterableDirectoryHandle).values()) {
-        if (entry.kind !== 'file') continue
-        fileCount += 1
-        const lowerName = entry.name.toLowerCase()
-        if (lowerName === 'care_calendar.md') {
-          sawCalendar = true
-          calendar = await (await (entry as FileSystemFileHandle).getFile()).text()
-        } else if (lowerName === 'briefing.md') {
-          sawBriefing = true
-          briefingOutput = await (await (entry as FileSystemFileHandle).getFile()).text()
-        }
+      if (error instanceof DOMException && ['NotAllowedError', 'SecurityError'].includes(error.name)) {
+        setWorkspaceStatus('permission-needed')
+        setWorkspaceError('Folder permission expired. Reconnect the remembered folder to continue.')
+      } else {
+        setWorkspaceError(error instanceof Error ? error.message : 'The care folder could not be read.')
       }
-
-      // Heartbeat: proves the watcher is alive and shows what it can see, so a
-      // hidden .txt extension or empty file is obvious at a glance.
-      setWatchStatus({ checkedAt: new Date().toISOString(), fileCount, sawCalendar, sawBriefing })
-
-      const previous = lastOutputsRef.current
-      if (calendar === previous.calendar && briefingOutput === previous.briefing) return
-
-      lastOutputsRef.current = { calendar, briefing: briefingOutput }
-      setWorkBuddyArtifacts({
-        calendar,
-        briefing: briefingOutput,
-        lastSynced: new Date().toISOString(),
-      })
-    } catch (error) {
-      setWatchStatus({ checkedAt: new Date().toISOString(), error: error instanceof Error ? error.message : 'Folder read failed.' })
+    } finally {
+      if (readingSources) setIsReading(false)
+      if (!options.background) setIsSyncing(false)
+      syncInFlightRef.current = false
     }
-  }
+  }, [])
 
+  useEffect(() => {
+    let active = true
+
+    async function restoreWorkspace() {
+      try {
+        const handle = await loadWorkspaceHandle()
+        if (!active) return
+
+        if (!handle) {
+          setWorkspaceStatus('disconnected')
+          return
+        }
+
+        setWorkspaceHandle(handle)
+        setWorkspaceName(handle.name)
+        const permission = await queryWorkspacePermission(handle)
+        if (!active) return
+
+        if (permission === 'granted') {
+          setWorkspaceStatus('connected')
+          setWorkspaceNotice('Remembered folder restored automatically in this browser.')
+          await syncWorkspace(handle, { forceSources: true })
+        } else {
+          setWorkspaceStatus('permission-needed')
+          setWorkspaceNotice('Folder remembered. Reconnect once to restore browser permission.')
+        }
+      } catch {
+        if (!active) return
+        setWorkspaceStatus('disconnected')
+        setWorkspaceNotice('Folder memory is unavailable in this browser. You can still connect it for this session.')
+      }
+    }
+
+    void restoreWorkspace()
+    return () => { active = false }
+  }, [syncWorkspace])
+
+  useEffect(() => {
+    if (!workspaceHandle || workspaceStatus !== 'connected') return
+
+    const checkForUpdates = () => {
+      if (document.visibilityState === 'visible') {
+        void syncWorkspace(workspaceHandle, { background: true })
+      }
+    }
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') checkForUpdates()
+    }
+    const interval = window.setInterval(checkForUpdates, 5000)
+
+    window.addEventListener('focus', checkForUpdates)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      window.clearInterval(interval)
+      window.removeEventListener('focus', checkForUpdates)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [syncWorkspace, workspaceHandle, workspaceStatus])
+
+  // Drop the ready-to-run task into the connected folder so the caregiver never
+  // has to paste it. Best-effort: a read-only folder simply skips this.
   async function writeTaskToWorkspace(handle: FileSystemDirectoryHandle) {
     try {
       await writeWorkspaceFile(handle, 'TASK.md', buildTaskFile(plan.profile.preferredName))
-      setTaskWritten(true)
     } catch {
-      // Writing the task is a convenience; a read-only folder should not error out.
-      setTaskWritten(false)
+      // Writing the task is a convenience; a failure here should never block the app.
     }
-  }
-
-  // Shared path for a folder we already hold a handle to: persist it, drop the
-  // task file in, and import whatever is already there.
-  async function activateWorkspace(handle: FileSystemDirectoryHandle) {
-    setNeedsPermission(false)
-    setWorkspaceHandle(handle)
-    setWorkspaceName(handle.name)
-    await saveWorkspaceHandle(handle)
-    await writeTaskToWorkspace(handle)
-    await syncWorkspace(handle)
   }
 
   async function connectWorkspace() {
-    // Returning caregiver whose stored folder just needs permission re-granted:
-    // re-grant in place instead of making them find the folder again.
-    if (workspaceHandle && needsPermission) {
-      const granted = await verifyWorkspacePermission(workspaceHandle, true)
-      if (granted) {
-        await activateWorkspace(workspaceHandle)
-        return
-      }
-      // Could not re-grant in place (older browser or denied): fall through and
-      // let the caregiver re-pick the same folder instead of dead-ending.
-    }
-
     const picker = (window as DirectoryPickerWindow).showDirectoryPicker
     if (!picker) {
       setWorkspaceError('Folder connection needs Chrome or Microsoft Edge. You can still upload files manually.')
+      setWorkspaceStatus('unsupported')
       setActiveView('workbuddy')
       return
     }
 
     try {
+      // Request readwrite so KithRelay can drop TASK.md into the folder; reading
+      // the results back only relies on the read half of that grant.
       const handle = await picker({ mode: 'readwrite' })
-      await activateWorkspace(handle)
+      setWorkspaceHandle(handle)
+      setWorkspaceName(handle.name)
+      setWorkspaceStatus('connected')
+      setWorkspaceNotice('This folder will be remembered in this browser when supported.')
+      try {
+        await saveWorkspaceHandle(handle)
+      } catch {
+        setWorkspaceNotice('Folder connected for this session; this browser could not remember it.')
+      }
+      await writeTaskToWorkspace(handle)
+      await syncWorkspace(handle, { forceSources: true })
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return
       setWorkspaceError(error instanceof Error ? error.message : 'Folder access was not granted.')
     }
   }
 
-  // Restore a previously connected folder on load so returning caregivers skip
-  // the picker. Skipped for the synthetic demo session so it is never overwritten.
-  useEffect(() => {
-    if (session.demo) return
-    let cancelled = false
-    void (async () => {
-      const handle = await loadWorkspaceHandle()
-      if (!handle || cancelled) return
-      const granted = await verifyWorkspacePermission(handle, false)
-      if (cancelled) return
-      setWorkspaceHandle(handle)
-      setWorkspaceName(handle.name)
-      if (granted) {
-        await writeTaskToWorkspace(handle)
-        await syncWorkspace(handle)
-      } else {
-        setNeedsPermission(true)
-      }
-    })()
-    return () => {
-      cancelled = true
+  async function reconnectWorkspace() {
+    if (!workspaceHandle) {
+      await connectWorkspace()
+      return
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session.demo])
 
-  // While connected, watch the folder so WorkBuddy's results appear on their own.
-  useEffect(() => {
-    if (!workspaceHandle || needsPermission) return
-    const kickoff = window.setTimeout(() => void refreshArtifacts(workspaceHandle), 0)
-    const interval = window.setInterval(() => {
-      void refreshArtifacts(workspaceHandle)
-    }, 3000)
-    return () => {
-      window.clearTimeout(kickoff)
-      window.clearInterval(interval)
+    try {
+      const permission = await requestWorkspacePermission(workspaceHandle)
+      if (permission !== 'granted') {
+        setWorkspaceStatus('permission-needed')
+        setWorkspaceError('Folder permission was not granted. Reconnect when you are ready.')
+        return
+      }
+
+      setWorkspaceStatus('connected')
+      setWorkspaceNotice('Remembered folder reconnected. Automatic result checks are active.')
+      await syncWorkspace(workspaceHandle, { forceSources: true })
+    } catch (error) {
+      setWorkspaceError(error instanceof Error ? error.message : 'The remembered folder could not be reconnected.')
     }
-  }, [workspaceHandle, needsPermission])
+  }
 
   function removeDocument(documentId: string) {
     setDocuments((current) => current.filter((document) => document.id !== documentId))
@@ -303,18 +313,19 @@ function WorkspaceApp({ session, onSignOut }: WorkspaceAppProps) {
     setActiveView('overview')
   }
 
-  function clearWorkspace() {
+  async function clearWorkspace() {
     setDocuments([])
     setAnalysisDate(new Date().toISOString().slice(0, 10))
     setFileIssues([])
     setWorkBuddyArtifacts({})
     setWorkspaceHandle(undefined)
     setWorkspaceName(undefined)
+    setWorkspaceStatus('disconnected')
+    setWorkspaceNotice('')
     setWorkspaceError('')
-    setNeedsPermission(false)
-    setTaskWritten(false)
-    lastOutputsRef.current = {}
-    void clearWorkspaceHandle()
+    sourceSignatureRef.current = ''
+    artifactSignatureRef.current = ''
+    await forgetWorkspaceHandle().catch(() => undefined)
     resetReviewState()
     setActiveView('documents')
   }
@@ -331,13 +342,13 @@ function WorkspaceApp({ session, onSignOut }: WorkspaceAppProps) {
       case 'medications':
         return <MedicationsView plan={plan} onOpenSource={setSourceDocumentId} />
       case 'documents':
-        return <DocumentsView plan={plan} issues={fileIssues} isReading={isReading} workspaceName={workspaceName} onConnectFolder={connectWorkspace} onFiles={handleFiles} onOpenSource={setSourceDocumentId} onRemove={removeDocument} />
+        return <DocumentsView plan={plan} issues={fileIssues} isReading={isReading} workspaceName={activeWorkspaceName} onConnectFolder={connectWorkspace} onFiles={handleFiles} onOpenSource={setSourceDocumentId} onRemove={removeDocument} />
       case 'review':
         return <ReviewView plan={plan} approved={approved} onToggleReviewed={(flagId) => { setReviewedFlagIds((current) => current.includes(flagId) ? current.filter((id) => id !== flagId) : [...current, flagId]); setApproved(false) }} onApprove={() => setApproved(true)} onOpenSource={setSourceDocumentId} />
       case 'workbuddy':
-        return <WorkBuddyView plan={plan} artifacts={workBuddyArtifacts} workspaceName={workspaceName} error={workspaceError} isSyncing={isSyncing} watching={Boolean(workspaceHandle) && !needsPermission} needsPermission={needsPermission} taskWritten={taskWritten} watchStatus={watchStatus} onConnect={connectWorkspace} onSync={() => syncWorkspace()} onWriteTask={() => { if (workspaceHandle) void writeTaskToWorkspace(workspaceHandle) }} />
+        return <WorkBuddyView plan={plan} artifacts={workBuddyArtifacts} workspaceName={workspaceName} workspaceStatus={workspaceStatus} notice={workspaceNotice} error={workspaceError} isSyncing={isSyncing} onConnect={connectWorkspace} onReconnect={reconnectWorkspace} onSync={() => workspaceHandle && syncWorkspace(workspaceHandle)} />
       default:
-        return <Overview plan={plan} briefing={briefing} reviewedCount={reviewedFlagIds.length} workspaceName={workspaceName} onNavigate={navigate} onOpenSource={setSourceDocumentId} />
+        return <Overview plan={plan} briefing={briefing} reviewedCount={reviewedFlagIds.length} workspaceName={activeWorkspaceName} onNavigate={navigate} onOpenSource={setSourceDocumentId} />
     }
   }
 
@@ -363,10 +374,10 @@ function WorkspaceApp({ session, onSignOut }: WorkspaceAppProps) {
           <button className="menu-button" type="button" aria-label="Open navigation" onClick={() => setMobileMenuOpen(true)}><Menu size={21} /></button>
           <div className="workspace-identity">
             <span className="profile-avatar">TG</span>
-            <div><strong>{plan.profile.preferredName}</strong><span>{plan.profile.age ? `${plan.profile.age} years` : 'Age not provided'} {'\u00b7'} {plan.profile.conditions.join(' \u00b7 ') || 'No conditions listed'}</span></div>
+            <div><strong>{plan.profile.preferredName}</strong><span>{plan.profile.age ? `${plan.profile.age} years` : 'Age not provided'} {'·'} {plan.profile.conditions.join(' · ') || 'No conditions listed'}</span></div>
           </div>
           <div className="topbar-actions">
-            <span className={`data-chip ${isDemo ? 'synthetic' : ''}`}><ShieldCheck size={14} />{isDemo ? 'Synthetic demo data' : workspaceName ? `${workspaceName} connected` : 'Local review session'}</span>
+            <span className={`data-chip ${isDemo ? 'synthetic' : ''}`}><ShieldCheck size={14} />{isDemo ? 'Synthetic demo data' : activeWorkspaceName ? `${activeWorkspaceName} connected` : 'Local review session'}</span>
             <div className="export-menu">
               <button className="primary-button compact" type="button" onClick={() => setExportOpen((open) => !open)}><Download size={16} /> Export <ChevronDown size={14} /></button>
               {exportOpen && <div className="export-popover"><button type="button" onClick={() => { downloadText('care_calendar.md', careCalendarMarkdown(plan)); setExportOpen(false) }}>Care calendar (.md)</button><button type="button" onClick={() => { downloadText('briefing.md', appointmentBriefingMarkdown(plan)); setExportOpen(false) }}>Appointment briefing (.md)</button><button type="button" onClick={() => { downloadText('care_plan.json', JSON.stringify(plan, null, 2), 'application/json'); setExportOpen(false) }}>Evidence bundle (.json)</button></div>}
@@ -375,7 +386,7 @@ function WorkspaceApp({ session, onSignOut }: WorkspaceAppProps) {
           </div>
         </header>
         <main className="content-area">{renderView()}</main>
-        <footer className="app-footer"><span>AI-assisted administrative summary &middot; Verify against source documents</span><div><button type="button" onClick={loadDemo}><RefreshCcw size={13} /> Reset demo</button><button type="button" onClick={clearWorkspace}><Trash2 size={13} /> Clear workspace</button></div></footer>
+        <footer className="app-footer"><span>AI-assisted administrative summary &middot; Verify against source documents</span><div><button type="button" onClick={loadDemo}><RefreshCcw size={13} /> Reset demo</button><button type="button" onClick={() => void clearWorkspace()}><Trash2 size={13} /> Clear workspace</button></div></footer>
       </div>
       <SourceDrawer document={selectedDocument} onClose={() => setSourceDocumentId(undefined)} />
     </div>

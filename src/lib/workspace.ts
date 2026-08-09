@@ -1,89 +1,166 @@
-// Persists the caregiver's selected care folder so a returning visit does not
-// require re-picking it, and re-checks permission without an extra prompt when
-// the browser already granted it.
+const databaseName = 'kithrelay.workspace.v1'
+const storeName = 'handles'
+const workspaceKey = 'care-folder'
 
-const DB_NAME = 'kithrelay'
-const STORE_NAME = 'handles'
-const HANDLE_KEY = 'workspace'
+export type WorkspacePermission = PermissionState | 'unsupported'
 
-type PermissionCapableHandle = FileSystemDirectoryHandle & {
-  queryPermission?: (descriptor: { mode: 'read' | 'readwrite' }) => Promise<PermissionState>
-  requestPermission?: (descriptor: { mode: 'read' | 'readwrite' }) => Promise<PermissionState>
+export type WorkspaceArtifact = {
+  content: string
+  filename: string
+  lastModified: number
+  size: number
 }
 
-function openDatabase(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 1)
+export type WorkspaceSnapshot = {
+  sourceFiles: File[]
+  sourceSignature: string
+  artifactSignature: string
+  calendar?: WorkspaceArtifact
+  briefing?: WorkspaceArtifact
+}
+
+type PermissionAwareDirectoryHandle = FileSystemDirectoryHandle & {
+  queryPermission?: (descriptor?: { mode?: 'read' | 'readwrite' }) => Promise<PermissionState>
+  requestPermission?: (descriptor?: { mode?: 'read' | 'readwrite' }) => Promise<PermissionState>
+  values: () => AsyncIterableIterator<FileSystemHandle>
+}
+
+type ArtifactKind = 'calendar' | 'briefing'
+
+type ArtifactCandidate = {
+  file: File
+  kind: ArtifactKind
+}
+
+function openDatabase() {
+  if (typeof indexedDB === 'undefined') return Promise.resolve<IDBDatabase | undefined>(undefined)
+
+  return new Promise<IDBDatabase>((resolve, reject) => {
+    const request = indexedDB.open(databaseName, 1)
+
     request.onupgradeneeded = () => {
-      if (!request.result.objectStoreNames.contains(STORE_NAME)) {
-        request.result.createObjectStore(STORE_NAME)
+      if (!request.result.objectStoreNames.contains(storeName)) {
+        request.result.createObjectStore(storeName)
       }
     }
     request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
+    request.onerror = () => reject(request.error ?? new Error('The saved workspace could not be opened.'))
   })
 }
 
-export async function saveWorkspaceHandle(handle: FileSystemDirectoryHandle): Promise<void> {
-  try {
-    const database = await openDatabase()
-    await new Promise<void>((resolve, reject) => {
-      const transaction = database.transaction(STORE_NAME, 'readwrite')
-      transaction.objectStore(STORE_NAME).put(handle, HANDLE_KEY)
-      transaction.oncomplete = () => resolve()
-      transaction.onerror = () => reject(transaction.error)
+function runTransaction<T>(
+  mode: IDBTransactionMode,
+  action: (store: IDBObjectStore) => IDBRequest<T>,
+) {
+  return openDatabase().then((database) => {
+    if (!database) return undefined
+
+    return new Promise<T>((resolve, reject) => {
+      const transaction = database.transaction(storeName, mode)
+      const request = action(transaction.objectStore(storeName))
+
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error ?? new Error('The saved workspace could not be updated.'))
+      transaction.oncomplete = () => database.close()
+      transaction.onerror = () => database.close()
+      transaction.onabort = () => database.close()
     })
-    database.close()
-  } catch {
-    // Persistence is a convenience; a failure here should never block the app.
+  })
+}
+
+export async function loadWorkspaceHandle() {
+  const result = await runTransaction<FileSystemDirectoryHandle | undefined>('readonly', (store) => store.get(workspaceKey))
+  return result
+}
+
+export async function saveWorkspaceHandle(handle: FileSystemDirectoryHandle) {
+  await runTransaction<IDBValidKey>('readwrite', (store) => store.put(handle, workspaceKey))
+}
+
+export async function forgetWorkspaceHandle() {
+  await runTransaction<undefined>('readwrite', (store) => store.delete(workspaceKey))
+}
+
+export async function queryWorkspacePermission(handle: FileSystemDirectoryHandle): Promise<WorkspacePermission> {
+  const permissionHandle = handle as PermissionAwareDirectoryHandle
+  if (!permissionHandle.queryPermission) return 'granted'
+  return permissionHandle.queryPermission({ mode: 'read' })
+}
+
+export async function requestWorkspacePermission(handle: FileSystemDirectoryHandle): Promise<WorkspacePermission> {
+  const permissionHandle = handle as PermissionAwareDirectoryHandle
+  if (!permissionHandle.requestPermission) return 'granted'
+  return permissionHandle.requestPermission({ mode: 'read' })
+}
+
+function identifyArtifact(filename: string): ArtifactKind | undefined {
+  const normalizedName = filename.toLowerCase()
+  if (/^care_calendar(?:[_-].+)?\.md$/.test(normalizedName)) return 'calendar'
+  if (/^briefing(?:[_-].+)?\.md$/.test(normalizedName)) return 'briefing'
+  return undefined
+}
+
+function isSupportedSource(file: File) {
+  const normalizedName = file.name.toLowerCase()
+  if (normalizedName === 'care_plan.json' || normalizedName === 'kithrelay_task.md') return false
+  return /\.(txt|md|csv|json|pdf)$/i.test(file.name) || file.type.startsWith('image/')
+}
+
+function latestCandidate(candidates: ArtifactCandidate[], kind: ArtifactKind) {
+  return candidates
+    .filter((candidate) => candidate.kind === kind)
+    .sort((left, right) => right.file.lastModified - left.file.lastModified || right.file.name.localeCompare(left.file.name))[0]
+}
+
+async function readArtifact(candidate?: ArtifactCandidate): Promise<WorkspaceArtifact | undefined> {
+  if (!candidate) return undefined
+
+  return {
+    content: await candidate.file.text(),
+    filename: candidate.file.name,
+    lastModified: candidate.file.lastModified,
+    size: candidate.file.size,
   }
 }
 
-export async function loadWorkspaceHandle(): Promise<FileSystemDirectoryHandle | undefined> {
-  try {
-    const database = await openDatabase()
-    const handle = await new Promise<FileSystemDirectoryHandle | undefined>((resolve, reject) => {
-      const transaction = database.transaction(STORE_NAME, 'readonly')
-      const request = transaction.objectStore(STORE_NAME).get(HANDLE_KEY)
-      request.onsuccess = () => resolve(request.result as FileSystemDirectoryHandle | undefined)
-      request.onerror = () => reject(request.error)
-    })
-    database.close()
-    return handle
-  } catch {
-    return undefined
-  }
-}
+export async function scanWorkspace(handle: FileSystemDirectoryHandle): Promise<WorkspaceSnapshot> {
+  const sourceFiles: File[] = []
+  const artifactCandidates: ArtifactCandidate[] = []
 
-export async function clearWorkspaceHandle(): Promise<void> {
-  try {
-    const database = await openDatabase()
-    await new Promise<void>((resolve, reject) => {
-      const transaction = database.transaction(STORE_NAME, 'readwrite')
-      transaction.objectStore(STORE_NAME).delete(HANDLE_KEY)
-      transaction.oncomplete = () => resolve()
-      transaction.onerror = () => reject(transaction.error)
-    })
-    database.close()
-  } catch {
-    // Ignore: clearing a convenience cache is best-effort.
-  }
-}
+  for await (const entry of (handle as PermissionAwareDirectoryHandle).values()) {
+    if (entry.kind !== 'file') continue
 
-// Returns true when we already hold (or can silently obtain) the requested
-// access. Pass requestIfNeeded=true from inside a user gesture to prompt.
-export async function verifyWorkspacePermission(
-  handle: FileSystemDirectoryHandle,
-  requestIfNeeded: boolean,
-  mode: 'read' | 'readwrite' = 'readwrite',
-): Promise<boolean> {
-  const capable = handle as PermissionCapableHandle
-  const descriptor = { mode }
-  if (capable.queryPermission && (await capable.queryPermission(descriptor)) === 'granted') {
-    return true
+    const file = await (entry as FileSystemFileHandle).getFile()
+    const artifactKind = identifyArtifact(file.name)
+
+    if (artifactKind) {
+      artifactCandidates.push({ file, kind: artifactKind })
+    } else if (isSupportedSource(file)) {
+      sourceFiles.push(file)
+    }
   }
-  if (requestIfNeeded && capable.requestPermission && (await capable.requestPermission(descriptor)) === 'granted') {
-    return true
+
+  sourceFiles.sort((left, right) => left.name.localeCompare(right.name))
+  const calendarCandidate = latestCandidate(artifactCandidates, 'calendar')
+  const briefingCandidate = latestCandidate(artifactCandidates, 'briefing')
+  const [calendar, briefing] = await Promise.all([
+    readArtifact(calendarCandidate),
+    readArtifact(briefingCandidate),
+  ])
+
+  const sourceSignature = sourceFiles
+    .map((file) => `${file.name}:${file.size}:${file.lastModified}`)
+    .join('|')
+  const artifactSignature = [calendar, briefing]
+    .filter((artifact): artifact is WorkspaceArtifact => Boolean(artifact))
+    .map((artifact) => `${artifact.filename}:${artifact.size}:${artifact.lastModified}`)
+    .join('|')
+
+  return {
+    sourceFiles,
+    sourceSignature,
+    artifactSignature,
+    calendar,
+    briefing,
   }
-  return false
 }
